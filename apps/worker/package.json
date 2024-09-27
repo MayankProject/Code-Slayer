@@ -1,0 +1,21 @@
+{
+  "name": "Worker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "dev": "tsc -b && nodemon dist",
+    "build": "turbo build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@repo/db": "workspace:*",
+    "axios": "^1.7.7",
+    "nodemon": "^3.1.7",
+    "prisma": "5.19.1",
+    "redis": "^4.7.0"
+  }
+}

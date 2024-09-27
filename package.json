@@ -8,6 +8,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
+    "@repo/types": "workspace:*",
     "prettier": "^3.2.5",
     "turbo": "^2.1.1",
     "typescript": "^5.4.5"
@@ -15,9 +16,12 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "npm@10.8.2",
+  "packageManager": "pnpm@10.8.2",
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "next-auth": "^4.24.7"
+  }
 }

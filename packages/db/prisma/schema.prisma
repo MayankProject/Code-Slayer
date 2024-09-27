@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Problem {
+  id                Int      @id @default(autoincrement())
+  title             String
+  description       String
+  TestCases         TestCase[]
+  boilerplate       String
+  testBiolerCode    String
+  difficulty        Difficulty
+}
+
+model TestCase {
+  id          Int      @id @default(autoincrement())
+  input       String
+  output      String
+  problemId   Int
+  problem     Problem  @relation(fields: [problemId], references: [id])
+}
+
+enum Difficulty {
+  Easy
+  Medium
+  Hard
+}
