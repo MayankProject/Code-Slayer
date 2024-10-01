@@ -20,10 +20,29 @@ export default function Console() {
 		}
 	];
 	const testResultValue = useRecoilValue(testResult);
-	console.log(Boolean(Object.keys(testResultValue).length));
 	return (
-		<div className="overflow-scroll px-4 py-2" >
-			{Object.keys(testResultValue).length ? (testResultValue.status.id === 3 ? <TestcasePassed /> : <Error text={testResultValue.stderr} />) : <div className="text-center text-sm">Empty Console</div>}
+		<div className="h-full overflow-scroll px-4 py-2" >
+			{
+				Object.keys(testResultValue).length ?
+					<div>
+						{
+							testResultValue.status.id === 3 ?
+								<TestcasePassed /> :
+								(
+									<>
+										<ExampleBody>
+											<div className="group font-menlo relative whitespace-pre-wrap break-all text-xs text-red-60 dark:text-red-60">
+												{testResultValue.stdout}
+											</div>
+										</ExampleBody>
+										<Error text={testResultValue.stderr} />
+
+									</>
+								)
+						}
+					</div> :
+					< div className="h-full flex justify-center items-center opacity-70 " > Empty Console</div >
+			}
 		</div>
 	)
 }

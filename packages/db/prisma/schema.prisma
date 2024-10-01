@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id          Int      @id @default(autoincrement())
+  name        String?
+  username    String   @unique
+  password    String
+  submissions Submission[]
+  arenaId     Int?
+  admin       Boolean  @default(false)
+  arena       Arena?    @relation(fields: [arenaId], references: [id])
+}
+
 model Problem {
   id                Int      @id @default(autoincrement())
   title             String
@@ -15,6 +26,44 @@ model Problem {
   boilerplate       String
   testBiolerCode    String
   difficulty        Difficulty
+  arenas            ArenaProblem[]
+  submissions       Submission[]
+}
+
+model Submission {
+  id          Int      @id @default(autoincrement())
+  code        String
+  language    String
+  time        Int
+  memory      Int
+  status      Status
+  submittedAt DateTime @default(now())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  problemId   Int
+  problem     Problem  @relation(fields: [problemId], references: [id])
+  arenaId     Int
+  arena       Arena    @relation(fields: [arenaId], references: [id])
+}
+
+model Arena {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  duration    Int
+  startTime   DateTime @default(now())
+  problems    ArenaProblem[]
+  endTime     DateTime
+  users       User[]
+  submissions Submission[]
+}
+
+model ArenaProblem {
+  id          Int      @id @default(autoincrement())
+  problemId   Int
+  problem     Problem  @relation(fields: [problemId], references: [id])
+  arenaId     Int
+  arena       Arena    @relation(fields: [arenaId], references: [id])
 }
 
 model TestCase {
@@ -29,4 +78,8 @@ enum Difficulty {
   Easy
   Medium
   Hard
+}
+
+enum Status {
+  Accepted
 }

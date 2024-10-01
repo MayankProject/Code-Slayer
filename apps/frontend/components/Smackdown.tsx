@@ -24,17 +24,17 @@ export default function Smackdown({ problem }: {
 		setConsole(false);
 	};
 	return (
-		<div className="h-1 min-h-[90vh] w-full flex-1 overflow-scroll resize" >
+		<div className="p-2 h-screen w-full flex-1 overflow-scroll resize" >
 			<Allotment>
-				<Allotment.Pane className="p-[4px]" >
+				<Allotment.Pane className="px-[4px]" >
 					<ProblemDescription description={problem.description} />
 				</Allotment.Pane>
 				< Allotment vertical className="overflow-hidden relative" >
-					<Allotment.Pane className="p-[4px] pb-3" >
+					<Allotment.Pane className="px-[4px] pb-3" >
 						<Playground boilerplate={problem.boilerplate} id={problem.id} />
 					</Allotment.Pane>
-					< Allotment.Pane className="p-[4px]" >
-						<Pane>
+					< Allotment.Pane className="px-[4px]" >
+						<Pane className="mt-2">
 							<div className="m-[4px]" >
 								<div className="sticky bottom-0 w-full bg-[#1e1e1e] flex gap-2 px-1 rounded-md" >
 									<button
@@ -50,7 +50,7 @@ export default function Smackdown({ problem }: {
 									</button>
 								</div>
 							</div>
-							< div className="m-[4px]" >
+							< div className="h-full  m-[4px]" >
 								{_Console ? <Console /> : <TestCases />}
 							</div>
 						</Pane>

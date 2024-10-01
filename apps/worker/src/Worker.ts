@@ -43,11 +43,18 @@ export default class Worker {
 			let _testBoilerCode = testBoilerCode;
 			for (let i = 0; i < testcase.input.split("\\n").length; i++) {
 				const input = testcase.input.split("\\n")[i];
-				console.log(input);
 				_testBoilerCode = _testBoilerCode.replace(`#INPUT_${i + 1}#`, input)
 			}
 			_testBoilerCode = _testBoilerCode.replace("#OUTPUT#", testcase.output).replace("#i#", String(i + 1));
-			;
+			_testBoilerCode = `
+			try {
+				console.log("----------------Testcase ${i + 1} Output Begin-------------\\n\\n")
+				${_testBoilerCode}
+				console.log("\\n\\n")
+			} catch (error) {
+				throw new Error(\`Testcase ${i + 1} Failed\`)
+			}
+			`;
 
 			const wrapInsideFunction = (code: string) => {
 				const funcName = `test${Math.random().toString(36).slice(2)}`;

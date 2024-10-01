@@ -116,3 +116,6 @@
   display: none;
   all: revert;
 }
+.split-view-view:before {
+  scale: 0.9;
+}

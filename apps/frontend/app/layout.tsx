@@ -31,7 +31,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased text-white bg-black`}
       >
         <Providers>
-          <Navigation />
           {children}
         </Providers>
       </body>

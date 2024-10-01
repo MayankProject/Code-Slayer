@@ -4,7 +4,7 @@ import assert from "assert";
 export default async function Page() {
   const problemDetails = await db.problem.findFirst({
     where: {
-      id: 6
+      id: 7
     },
     select: {
       id: true,
