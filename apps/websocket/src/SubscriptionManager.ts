@@ -16,7 +16,6 @@ export class SubscriptionManager {
 		const streamSub = this.Subscriptions.get(stream) || []
 		const userSub = this.reverseSubscription.get(ws) || []
 		if (!(streamSub.length)) {
-			console.log("Subscribing to", stream)
 			RedisManager.getInstance().subscribe(stream, SubscriptionManager.instance)
 		}
 		this.Subscriptions.set(stream, [...streamSub, ws])
@@ -37,7 +36,7 @@ export class SubscriptionManager {
 		})
 		this.reverseSubscription.delete(ws)
 	}
-	getSubscribedData(message: string, channel: string) {
+	getSubscrbedData(message: string, channel: string) {
 		const Users = this.Subscriptions.get(channel) || []
 		for (let i = 0; i < Users.length; i++) {
 			const User = Users[i]

@@ -4,37 +4,82 @@ import ProblemDescription from "@/components/ProblemDescription";
 import { Allotment } from "allotment";
 import Playground from "@/components/Playground";
 import TestCases from "./TestCases";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Pane from "./Pane";
 import Console from "./Console";
-export default function Smackdown({ problem }: {
-	problem: {
-		id: number;
-		title: string;
-		description: string;
-		difficulty: string;
-		boilerplate: string;
-	}
-}) {
-	const [_Console, setConsole] = useState(false);
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { allProblems, consoleVisible, currentProblem } from "@/state";
+
+export interface Problem {
+	id: number;
+	title: string;
+	description: string;
+	difficulty: string;
+	boilerplate: string;
+}
+
+export default function Smackdown({ token, problemsData }: { problemsData: Problem[], token: string }) {
+	const [Problems, setProblems] = useRecoilState(allProblems);
+	const [problemIndex, setProblemIndex] = useRecoilState(currentProblem);
+	const [Problem, setProblem] = useState<Problem>(Problems[problemIndex]);
+	const [_Console, setConsole] = useRecoilState(consoleVisible);
+	const [nProblems, setNProblems] = useState(problemsData.length);
 	const showConsole = () => {
 		setConsole(true);
 	};
 	const hideConsole = () => {
 		setConsole(false);
 	};
+	const nextProblem = () => {
+		if (problemIndex === nProblems - 1) {
+			setProblemIndex(0);
+			return;
+		}
+		setProblemIndex(problemIndex + 1);
+	};
+	const prevProblem = () => {
+		if (problemIndex === 0) {
+			setProblemIndex(nProblems - 1);
+			return;
+		}
+		setProblemIndex(problemIndex - 1);
+	};
+	useEffect(() => {
+		setProblemIndex(0);
+		setProblems(() => {
+			return problemsData.map((problem) => {
+				return { ...problem, testResult: {} };
+			});
+		});
+	}, []);
+
+	useEffect(() => {
+		setProblem(Problems[problemIndex]);
+	}, [problemIndex, Problems]);
 	return (
 		<div className="p-2 h-screen w-full flex-1 overflow-scroll resize" >
 			<Allotment>
 				<Allotment.Pane className="px-[4px]" >
-					<ProblemDescription description={problem.description} />
+					< div className="w-full flex gap-2 px-4 rounded-md" >
+						<button
+							onClick={prevProblem}
+							className={`relative bg-[#FFFFFF1A] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`}>
+							Previous
+						</button>
+						< button
+							onClick={nextProblem}
+							className={`relative bg-[#2CBB5D] transition-200 my-2 px-4 py-[4px] rounded-lg  text-white`}>
+							Next
+						</button>
+					</div>
+					<ProblemDescription description={Problem?.description} />
 				</Allotment.Pane>
 				< Allotment vertical className="overflow-hidden relative" >
 					<Allotment.Pane className="px-[4px] pb-3" >
-						<Playground boilerplate={problem.boilerplate} id={problem.id} />
+						<Playground token={token} />
 					</Allotment.Pane>
 					< Allotment.Pane className="px-[4px]" >
-						<Pane className="mt-2">
+						<Pane className="mt-2" >
 							<div className="m-[4px]" >
 								<div className="sticky bottom-0 w-full bg-[#1e1e1e] flex gap-2 px-1 rounded-md" >
 									<button

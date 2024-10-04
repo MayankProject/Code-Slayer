@@ -1,5 +1,6 @@
 import WebSocket from "ws"
 import { SubscriptionManager } from "./SubscriptionManager"
+import RedisManager from "./RedisManager"
 export class UsersManager {
 	private static instance: UsersManager
 	private Users: Map<string, User> = new Map()
@@ -40,21 +41,30 @@ class User {
 		})
 	}
 	processRequest(message: {
-		method: string,
+		method: "SUBSCRIBE" | "UNSUBSCRIBE",
 		param: {
 			type: "token" | "room",
 			key: string
 		}
+	} | {
+		method: "PUBLISH",
+		param: {
+			key: string,
+			data: any
+		}
 	}) {
 		const Manager = SubscriptionManager.getInstance()
-		console.log(message)
+		console.log(message.param)
 		switch (message.method) {
 			case "SUBSCRIBE":
-				console.log(message, "heyyy")
 				Manager.Subscribe(this.ws, message.param.key)
 				break;
 			case "UNSUBSCRIBE":
 				Manager.Unsubscribe(this.ws, message.param.key)
+				break;
+			case "PUBLISH":
+				console.log(`User ${this.id} PUBLISHING ${message ? message.param.key : ""}`)
+				RedisManager.getInstance().publish(message.param.key, JSON.stringify(message.param.data))
 				break;
 		}
 

@@ -119,3 +119,18 @@
 .split-view-view:before {
   scale: 0.9;
 }
+
+
+.code-editor {
+  background-color: #1e1e1e;
+}
+.code-editor > section > div{
+  padding: 5px;
+}
+.line-numbers {
+  width: 20px !important;
+}
+.monaco-scrollable-element{
+  left: 40px !important;
+  width: 100%;
+}

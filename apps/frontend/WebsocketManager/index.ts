@@ -1,8 +1,13 @@
 type payload = {
-	method: string,
+	method: "SUBSCRIBE" | "UNSUBSCRIBE",
 	param: {
-		type: "token" | "room",
 		key: string
+	}
+} | {
+	method: "PUBLISH",
+	param: {
+		key: string,
+		data: any
 	}
 }
 export class WebSocketManager {
@@ -13,6 +18,7 @@ export class WebSocketManager {
 	private callbacks: { [key: string]: ((data: any) => void)[] } = {}
 	private solutionCallbacks: Map<string, ((data: any) => void)> = new Map()
 	private constructor() {
+		console.log("creating new websocket")
 		this.socket = new WebSocket("ws://localhost:3002")
 		this.init()
 	}
@@ -22,8 +28,8 @@ export class WebSocketManager {
 		}
 		return this.instance
 	}
+
 	sendMessage(message: payload) {
-		console.log(message)
 		if (!this.initialized) {
 			this.bufferedMessage.push(message)
 			return
@@ -52,6 +58,7 @@ export class WebSocketManager {
 			}
 		}
 		if (this.callbacks[data.e]) {
+			console.log("Handling callback", data.e)
 			this.callbacks[data.e].forEach((callback) => {
 				callback(data)
 			})

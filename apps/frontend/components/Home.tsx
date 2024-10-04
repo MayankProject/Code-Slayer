@@ -4,14 +4,14 @@ import Container from "./Container";
 import { useSession } from "next-auth/react";
 import registerAndLogin from "@/actions/registerAndLogin";
 import { useEffect } from "react";
+import { redirect, useRouter } from "next/navigation";
 
 export default function Home() {
-	const { status } = useSession();
-	useEffect(() => {
-		if (status === "unauthenticated") {
-			registerAndLogin();
-		}
-	}, [status])
+	const router = useRouter();
+	const handleArenaCreation = async () => {
+		const token = await createArena();
+		router.push(`/arena/${token}`);
+	};
 	return (
 		<Container>
 			<div className="h-full flex flex-col gap-4 justify-center items-center" >
@@ -21,7 +21,7 @@ export default function Home() {
 					</div>
 					< div className="flex gap-2 w-full rounded-md" >
 						<button
-							onClick={() => createArena({ name: "test" })}
+							onClick={handleArenaCreation}
 							className={`relative bg-[#FFFFFF1A] transition-200 my-2 px-4 py-3 rounded-lg  text-gray-400 flex-1`
 							}>
 							Create Arena

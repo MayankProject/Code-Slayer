@@ -1,0 +1,41 @@
+import { getServerSession } from "next-auth";
+import db from "../../../../../../packages/db/src";
+import { authOptions } from "@/app/authConfig";
+import assert from "assert";
+import Smackdown from "@/components/Smackdown";
+export default async function Battle({ params: { token } }: { params: { token: string } }) {
+	const session = await getServerSession(authOptions)
+	assert(session, "Unauthenticated");
+	const userId = session.user.id;
+	const problems = await db.arena.findFirst({
+		where: {
+			token: token,
+			users: {
+				some: {
+					id: userId
+				}
+			}
+		},
+		select: {
+			problems: {
+				select: {
+					problem: {
+						select: {
+							id: true,
+							title: true,
+							description: true,
+							difficulty: true,
+							boilerplate: true
+						}
+					}
+				}
+			}
+		}
+	});
+	assert(problems, "No battle found");
+	const parsedProblems = problems?.problems.map(problem => problem.problem);
+	console.log(parsedProblems);
+	return (
+		<Smackdown token= { token } problemsData = { parsedProblems } />
+	)
+}

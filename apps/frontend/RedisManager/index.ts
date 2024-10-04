@@ -1,10 +1,13 @@
 import { payload } from "@repo/types";
 import { createClient, RedisClientType } from "redis"
 export default class RedisManager {
+	private client: RedisClientType;
 	private publisher: RedisClientType;
 	private static instance: RedisManager;
 	private constructor() {
 		// publisher : Pushes data to queue
+		this.client = createClient();
+		this.client.connect()
 		this.publisher = createClient();
 		this.publisher.connect()
 	}
@@ -14,11 +17,15 @@ export default class RedisManager {
 		}
 		return this.instance;
 	}
-
-	push(payload: payload) {
+	publish(token: string, gameEventPayload: any) {
+		console.log("Publishing", gameEventPayload)
+		this.publisher.publish(token, JSON.stringify(gameEventPayload))
+	}
+	push(e: string, payload: payload) {
 		const id = Math.random().toString()
 		const updatedPayload = { ...payload, id }
-		this.publisher.lPush("submission", JSON.stringify(updatedPayload))
+		this.client.lPush(e, JSON.stringify(updatedPayload))
 		return id
 	}
+
 }

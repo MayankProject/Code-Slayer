@@ -4,8 +4,7 @@ import RedisManager from "../RedisManager";
 import { payload } from "@repo/types";
 
 const redis = RedisManager.getInstance();
-const ws = WebSocketManager.getInstance();
 export default async function submit(payload: payload) {
-	const id = redis.push(payload);
+	const id = redis.push('submission', payload);
 	return id
 }

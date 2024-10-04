@@ -3,6 +3,7 @@ import { Navigation } from "../components/dynamic-nav";
 import localFont from "next/font/local";
 import Providers from "./Providers";
 import "./globals.css";
+import Authenticate from "./Authenticate";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,11 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" >
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased text-white bg-black`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased text-white bg-black`}>
         <Providers>
-          {children}
+          <Authenticate>
+            {children}
+          </Authenticate>
         </Providers>
       </body>
     </html>

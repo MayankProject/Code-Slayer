@@ -14,7 +14,6 @@ model User {
   password    String
   submissions Submission[]
   arenaId     Int?
-  admin       Boolean  @default(false)
   arena       Arena?    @relation(fields: [arenaId], references: [id])
 }
 
@@ -48,13 +47,14 @@ model Submission {
 
 model Arena {
   id          Int      @id @default(autoincrement())
-  name        String
+  token       String   @unique
   description String
   duration    Int
   startTime   DateTime @default(now())
   problems    ArenaProblem[]
   endTime     DateTime
   users       User[]
+  admin       Int
   submissions Submission[]
 }
 

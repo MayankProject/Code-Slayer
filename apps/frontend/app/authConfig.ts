@@ -1,9 +1,9 @@
-import NextAuth, { Awaitable, User } from "next-auth";
+import NextAuth, { Awaitable, NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import db from "../../../packages/db/src";
 
-export default NextAuth({
+export const authOptions: NextAuthOptions = {
 	providers: [
 		CredentialsProvider({
 			name: "Credentials",
@@ -26,6 +26,7 @@ export default NextAuth({
 	session: {
 		strategy: "jwt",
 	},
+	secret: process.env.NEXTAUTH_SECRET,
 	callbacks: {
 		async jwt({ token, user }) {
 			if (user) {
@@ -38,4 +39,6 @@ export default NextAuth({
 			return session;
 		},
 	},
-});
+}
+
+export default NextAuth(authOptions);
