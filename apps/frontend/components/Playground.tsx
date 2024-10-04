@@ -3,13 +3,13 @@ import { javascript } from '@codemirror/lang-javascript';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { useEffect, useState } from "react";
 import Pane from "./Pane";
-import Monaco from "@monaco-editor/react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { WebSocketManager } from "@/WebsocketManager";
 const ws = WebSocketManager.getInstance();
 import submit from "@/actions/submit";
 import { allProblems, consoleVisible, currentProblem, testResult } from "@/state";
 import { useSession } from "next-auth/react";
+
 export default function Playground({ token }: { token: string }) {
 	const session = useSession();
 	const currentProblemIndex = useRecoilValue(currentProblem);
@@ -38,17 +38,7 @@ export default function Playground({ token }: { token: string }) {
 			setConsole(true);
 		});
 	}
-	function handleChange(value: string, viewUpdate: any) {
-		const diffs = viewUpdate.changes.map((change: any) => ({
-			rangeOffset: change.rangeOffset,
-			rangeLength: change.rangeLength,
-			text: change.text,
-		}));
-		const data = {
-			e: "UPDATE_CODE",
-			data: [...diffs]
-		}
-		console.log(data);
+	function handleChangeMirror(value: string, viewUpdate: any) {
 		ws.sendMessage({
 			method: "PUBLISH",
 			param: {
@@ -56,7 +46,9 @@ export default function Playground({ token }: { token: string }) {
 				data: {
 					user_id: session?.data?.user?.id.toString() || "",
 					e: "UPDATE_CODE",
-					data
+					data: {
+						code: value,
+					}
 				}
 			}
 		})
@@ -79,30 +71,16 @@ export default function Playground({ token }: { token: string }) {
 	return (
 		<Pane className="!overflow-hidden" >
 			<div className='w-full  code-editor h-full overflow-auto' >
-				<Monaco
-					className="py-3"
-					height="100%"
-					defaultLanguage="javascript"
-					defaultValue={code}
-					onChange={(value, viewUpdate) => {
-						handleChange(value || "", viewUpdate);
-					}
-					}
-					theme="vs-dark" // Set the theme (e.g., 'vs-dark', 'vs-light')
-					options={
-						{ minimap: { enabled: false } }
-					}
-				/>
-				{ /* <CodeMirror
+				<CodeMirror
 					value={code}
 					onChange={(value, viewUpdate) => {
-						handleChange(value, viewUpdate);
+						handleChangeMirror(value, viewUpdate);
 					}
 					}
 					className="bg-red-200 text-sm"
 					theme={vscodeDark}
 					extensions={[javascript()]}
-				/> */ }
+				/>
 			</div>
 			< div className="sticky bottom-0 w-full bg-[#1e1e1e] flex gap-2 px-4 rounded-md" >
 				<button
