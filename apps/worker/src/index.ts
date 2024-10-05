@@ -7,7 +7,7 @@ async function main() {
 	while (1) {
 		const Payload = await redis.getFromQueue() as payload & { id: string }
 		try {
-			const response = await worker.Submit({ problem_id: Payload.problem_id, source_code: Payload.source_code, language_id: Payload.language_id })
+			const response = await worker.Submit({ arena_token: Payload.arena_token, problem_id: Payload.problem_id, source_code: Payload.source_code, language_id: Payload.language_id })
 			redis.publishSubmission(Payload.id, { id: Payload.id, e: "SUBMISSION", ...response })
 		}
 		catch (e: unknown) {

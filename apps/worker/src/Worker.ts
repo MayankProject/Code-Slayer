@@ -33,7 +33,32 @@ export default class Worker {
 				token: string;
 			}
 		} = await axios.post(`${JUDGE0_URL}/submissions`, { ...payload, source_code: finalSourceCode })
-		return await this.getResult(token);
+		const data = await this.getResult(token);
+		if (data.status.id === 3) {
+			const arenaId = await db.arena.findFirst({
+				where: {
+					token: payload.arena_token,
+				},
+				select: {
+					id: true,
+				}
+			})
+			assert(arenaId, "Arena not found");
+			const submissionId = await db.submission.create({
+				data: {
+					code: payload.source_code,
+					language: "javascript",
+					time: parseFloat(data.time),
+					memory: data.memory,
+					status: "Accepted",
+					problemId: parseInt(payload.problem_id),
+					arenaId: arenaId.id,
+				}
+			})
+			data.submission_id = submissionId.id;
+		}
+		return data;
+
 	}
 
 	injectTestCase(source_code: string, TestCases: { input: string, output: string }[], testBoilerCode: string): string {
@@ -51,6 +76,7 @@ export default class Worker {
 				console.log("----------------Testcase ${i + 1} Output Begin-------------\\n\\n")
 				${_testBoilerCode}
 				console.log("\\n\\n")
+				console.log("----------------Testcase ${i + 1} Output End-------------")
 			} catch (error) {
 				throw new Error(\`Testcase ${i + 1} Failed\`)
 			}

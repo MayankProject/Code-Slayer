@@ -37,8 +37,8 @@ model Submission {
   memory      Int
   status      Status
   submittedAt DateTime @default(now())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  userId      Int?
+  user        User?     @relation(fields: [userId], references: [id])
   problemId   Int
   problem     Problem  @relation(fields: [problemId], references: [id])
   arenaId     Int
@@ -48,6 +48,7 @@ model Submission {
 model Arena {
   id          Int      @id @default(autoincrement())
   token       String   @unique
+  phase       Phase    @default(Lobby)
   description String
   duration    Int
   startTime   DateTime @default(now())
@@ -82,4 +83,9 @@ enum Difficulty {
 
 enum Status {
   Accepted
+}
+
+enum Phase {
+  Lobby
+  Battle
 }

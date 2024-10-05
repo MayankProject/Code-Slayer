@@ -3,10 +3,27 @@ import db from "../../../../../../packages/db/src";
 import { authOptions } from "@/app/authConfig";
 import assert from "assert";
 import Smackdown from "@/components/Smackdown";
+import { redirect } from "next/navigation";
 export default async function Battle({ params: { token } }: { params: { token: string } }) {
 	const session = await getServerSession(authOptions)
 	assert(session, "Unauthenticated");
 	const userId = session.user.id;
+
+	const arena = await db.arena.findFirst({
+		where: {
+			token,
+		},
+		select: {
+			phase: true
+		},
+	});
+
+	assert(arena, "No arena found");
+
+	if (arena.phase === "Lobby") {
+		return redirect("/arena/" + token);
+	}
+
 	const problems = await db.arena.findFirst({
 		where: {
 			token: token,
@@ -36,6 +53,6 @@ export default async function Battle({ params: { token } }: { params: { token: s
 	const parsedProblems = problems?.problems.map(problem => problem.problem);
 	console.log(parsedProblems);
 	return (
-		<Smackdown token= { token } problemsData = { parsedProblems } />
+		<Smackdown token={token} problemsData={parsedProblems} />
 	)
 }

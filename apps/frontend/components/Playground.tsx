@@ -9,6 +9,7 @@ const ws = WebSocketManager.getInstance();
 import submit from "@/actions/submit";
 import { allProblems, consoleVisible, currentProblem, testResult } from "@/state";
 import { useSession } from "next-auth/react";
+import verifySubmission from "@/actions/verifySubmission";
 
 export default function Playground({ token }: { token: string }) {
 	const session = useSession();
@@ -19,7 +20,7 @@ export default function Playground({ token }: { token: string }) {
 	const boilerplate = Problem?.boilerplate;
 	const setConsole = useSetRecoilState(consoleVisible);
 	async function submit_fn() {
-		const test_id = await submit({ problem_id: String(id), source_code: code, language_id: language });
+		const test_id = await submit({ arena_token: token, problem_id: String(id), source_code: code, language_id: language });
 		ws.sendMessage({
 			method: "SUBSCRIBE",
 			param: {
@@ -27,6 +28,9 @@ export default function Playground({ token }: { token: string }) {
 			}
 		})
 		ws.attachSolutionCallback(test_id, (message) => {
+			if (message.submission_id) {
+				verifySubmission(message.submission_id);
+			}
 			setProblems((prev) => {
 				return prev.map((problem) => {
 					if (problem.id === id) {
@@ -69,30 +73,30 @@ export default function Playground({ token }: { token: string }) {
 		setCode(boilerplate);
 	}, [boilerplate]);
 	return (
-		<Pane className="!overflow-hidden" >
-			<div className='w-full  code-editor h-full overflow-auto' >
-				<CodeMirror
-					value={code}
-					onChange={(value, viewUpdate) => {
-						handleChangeMirror(value, viewUpdate);
-					}
-					}
-					className="bg-red-200 text-sm"
-					theme={vscodeDark}
-					extensions={[javascript()]}
-				/>
-			</div>
-			< div className="sticky bottom-0 w-full bg-[#1e1e1e] flex gap-2 px-4 rounded-md" >
-				<button
-					className={`relative bg-[#FFFFFF1A] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`}>
-					Run
-				</button>
-				< button
-					onClick={submit_fn}
-					className={`relative bg-[#2CBB5D] transition-200 my-2 px-4 py-[4px] rounded-lg  text-white`}>
-					Submit
-				</button>
-			</div>
-		</Pane>
+		<Pane className= "!overflow-hidden" >
+		<div className='w-full  code-editor h-full overflow-auto' >
+			<CodeMirror
+					value={ code }
+	onChange = {(value, viewUpdate) => {
+		handleChangeMirror(value, viewUpdate);
+	}
+}
+className = "bg-red-200 text-sm"
+theme = { vscodeDark }
+extensions = { [javascript()]}
+	/>
+	</div>
+	< div className = "sticky bottom-0 w-full bg-[#1e1e1e] flex gap-2 px-4 rounded-md" >
+		<button
+					className={ `relative bg-[#FFFFFF1A] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400` }>
+	Run
+	</button>
+	< button
+onClick = { submit_fn }
+className = {`relative bg-[#2CBB5D] transition-200 my-2 px-4 py-[4px] rounded-lg  text-white`}>
+	Submit
+	</button>
+	</div>
+	</Pane>
 	);
 }

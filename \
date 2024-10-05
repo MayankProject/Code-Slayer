@@ -3,7 +3,6 @@ import db from "../../../../../../packages/db/src";
 import assert from "assert";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/authConfig";
-import { redirect } from "next/navigation";
 export default async function({ params: { token } }: { params: { token: string } }) {
 	const session = await getServerSession(authOptions)
 	assert(session, "Unauthenticated")
@@ -31,13 +30,9 @@ export default async function({ params: { token } }: { params: { token: string }
 			}
 		}
 	});
-	if (!userWithSubmission) {
-		return (
-			redirect(`/arena/${token}/battle`)
-		);
-	}
+	assert(userWithSubmission, "You haven't made any submissions in this arena");
 
-	const arena = await db.arena.findFirst({
+	const users = await db.arena.findFirst({
 		where: {
 			token: token
 		},
@@ -47,30 +42,12 @@ export default async function({ params: { token } }: { params: { token: string }
 					id: true,
 					name: true,
 				}
-			},
-			problems: {
-				select: {
-					problemId: true,
-				}
 			}
 		}
 	});
-
-	assert(arena, "Arena not found");
-
-	const allSubmissions = userWithSubmission.submissions.map((submission) => {
-		return submission.problemId;
-	});
-	const allProblems = arena.problems.map((problem) => {
-		return problem.problemId;
-	});
-	const ifSolvedAllProblems = allProblems.every((problem) => {
-		return allSubmissions.includes(problem);
-	});
-
-	assert(ifSolvedAllProblems, "You haven't solved all the problems in this arena");
-
+	assert(users, "User not found");
+	console.log(users);
 	return (
-		<Spectate usersDetails= { arena?.users } />
+		<Spectate usersDetails= { users?.users } />
 	);
 }

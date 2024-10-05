@@ -60,10 +60,11 @@ export default function Smackdown({ token, problemsData }: { problemsData: Probl
 		<div className="p-2 h-screen w-full flex-1 overflow-scroll resize" >
 			<Allotment>
 				<Allotment.Pane className="px-[4px]" >
-					< div className="w-full flex gap-2 px-4 rounded-md" >
+					<div className="w-full flex gap-2 px-4 rounded-md" >
 						<button
 							onClick={prevProblem}
-							className={`relative bg-[#FFFFFF1A] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`}>
+							className={`relative bg-[#FFFFFF1A] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`
+							}>
 							Previous
 						</button>
 						< button
@@ -72,7 +73,7 @@ export default function Smackdown({ token, problemsData }: { problemsData: Probl
 							Next
 						</button>
 					</div>
-					<ProblemDescription description={Problem?.description} />
+					< ProblemDescription description={Problem?.description} />
 				</Allotment.Pane>
 				< Allotment vertical className="overflow-hidden relative" >
 					<Allotment.Pane className="px-[4px] pb-3" >

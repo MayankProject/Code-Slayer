@@ -9,15 +9,20 @@ export default async function startArena(token: string) {
 	console.log("Starting arena", token)
 	const session = await getServerSession(authOptions);
 	assert(session, "Session not found");
-
-	const arena = await db.arena.findFirst({
-		where: {
-			token,
-			admin: session?.user?.id,
-		}
-	});
-	assert(arena, "Arena not found");
-	console.log(`Arena ${token} started`);
+	try {
+		await db.arena.update({
+			where: {
+				token,
+				admin: session?.user?.id,
+			},
+			data: {
+				phase: "Battle",
+			},
+		});
+	}
+	catch (e) {
+		throw new Error("Arena not found");
+	}
 	redis.publish(token, {
 		e: "START_ARENA",
 		id: token
