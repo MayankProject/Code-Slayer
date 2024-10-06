@@ -40,6 +40,7 @@ export class WebSocketManager {
 		this.solutionCallbacks.set(id, callback)
 	}
 	attachCallback(stream: string, callback: (data: any) => void) {
+		console.log("attaching callback", stream, callback)
 		if (this.callbacks[stream]) {
 			this.callbacks[stream].push(callback)
 			return
@@ -47,7 +48,9 @@ export class WebSocketManager {
 		this.callbacks[stream] = [callback]
 	}
 	detachCallback(stream: string, callback: (data: any) => void) {
+		console.log("detaching callback", this.callbacks[stream], callback)
 		this.callbacks[stream] = this.callbacks[stream].filter(call => call !== callback)
+		console.log("detached callback", this.callbacks[stream])
 	}
 	handleIncomingData(data: any) {
 		if (data.e === "SUBMISSION") {

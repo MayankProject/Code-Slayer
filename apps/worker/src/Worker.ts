@@ -4,8 +4,11 @@ import { JUDGE0_URL } from "./config";
 import { payload } from "@repo/types";
 //@ts-ignore
 import db from "../../../packages/db/src";
+import RedisManager from "./RedisManager";
+const redis = RedisManager.getInstance();
 export default class Worker {
 	private static instance: Worker;
+	private ArenaTimeMap: Map<string, number> = new Map();
 	static getInstance() {
 		if (!Worker.instance) {
 			Worker.instance = new Worker();
@@ -27,7 +30,6 @@ export default class Worker {
 		assert(problem?.TestCases, "TestCases not found");
 
 		const finalSourceCode = this.injectTestCase(payload.source_code, problem.TestCases, problem.testBiolerCode)
-		console.log(finalSourceCode);
 		const { data: { token } }: {
 			data: {
 				token: string;
@@ -106,5 +108,38 @@ export default class Worker {
 		else {
 			return data;
 		}
+	}
+	async timeControl(token: string) {
+		const arena = await db.arena.findFirst({
+			where: {
+				token: token,
+			},
+			select: {
+				timeLimit: true,
+			}
+		})
+
+		assert(arena, "Arena not found");
+		this.ArenaTimeMap.set(token, arena.timeLimit);
+		this.reduceTime({ token, interval: 1 });
+	}
+	async reduceTime({ token, interval }: { token: string, interval: number }) {
+		const timeLimit = this.ArenaTimeMap.get(token);
+		assert(timeLimit, "TimeLimit not found");
+		this.ArenaTimeMap.set(token, timeLimit - interval);
+		if (timeLimit - interval <= 0) {
+			redis.publish(token, { id: token, e: "FINISH_ARENA" })
+			return;
+		}
+		await db.arena.update({
+			where: {
+				token: token,
+			},
+			data: {
+				timeLimit: timeLimit - interval - 1
+			}
+		})
+		redis.publish(token, { e: "TIME_CONTROL", time: timeLimit - interval })
+		setTimeout(() => this.reduceTime({ token, interval }), interval * 1000);
 	}
 }

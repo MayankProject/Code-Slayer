@@ -21,7 +21,7 @@ export default class RedisManager {
 		console.log("Publishing", gameEventPayload)
 		this.publisher.publish(token, JSON.stringify(gameEventPayload))
 	}
-	push(e: string, payload: payload) {
+	push(e: string, payload: payload | { token: string }) {
 		const id = Math.random().toString()
 		const updatedPayload = { ...payload, id }
 		this.client.lPush(e, JSON.stringify(updatedPayload))

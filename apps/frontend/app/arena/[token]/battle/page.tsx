@@ -14,7 +14,8 @@ export default async function Battle({ params: { token } }: { params: { token: s
 			token,
 		},
 		select: {
-			phase: true
+			phase: true,
+			timeLimit: true,
 		},
 	});
 
@@ -53,6 +54,6 @@ export default async function Battle({ params: { token } }: { params: { token: s
 	const parsedProblems = problems?.problems.map(problem => problem.problem);
 	console.log(parsedProblems);
 	return (
-		<Smackdown token={token} problemsData={parsedProblems} />
+		<Smackdown token= { token } problemsData = { parsedProblems } timeLimit = { arena.timeLimit } />
 	)
 }

@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 export default async function({ params: { token } }: { params: { token: string } }) {
 	const session = await getServerSession(authOptions)
 	assert(session, "Unauthenticated")
+
 	const userWithSubmission = await db.user.findFirst({
 		where: {
 			id: session.user.id,
@@ -31,6 +32,8 @@ export default async function({ params: { token } }: { params: { token: string }
 			}
 		}
 	});
+
+	// If user has not submitted in this arena
 	if (!userWithSubmission) {
 		return (
 			redirect(`/arena/${token}/battle`)
@@ -58,6 +61,7 @@ export default async function({ params: { token } }: { params: { token: string }
 
 	assert(arena, "Arena not found");
 
+	// Check if user has solved all problems in this arena
 	const allSubmissions = userWithSubmission.submissions.map((submission) => {
 		return submission.problemId;
 	});
@@ -68,7 +72,12 @@ export default async function({ params: { token } }: { params: { token: string }
 		return allSubmissions.includes(problem);
 	});
 
-	assert(ifSolvedAllProblems, "You haven't solved all the problems in this arena");
+	// If user has not solved all problems in this arena
+	if (!ifSolvedAllProblems) {
+		return (
+			redirect(`/arena/${token}/battle`)
+		);
+	}
 
 	return (
 		<Spectate usersDetails= { arena?.users } />

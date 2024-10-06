@@ -25,3 +25,11 @@ export const allSpectatorsCode = atom<Map<string, string>>({
 	key: "spectatorCode",
 	default: new Map()
 });
+export const timeState = atom<number>({
+	key: "timeLimit",
+	default: 0
+});
+export const canSpectateState = atom<boolean>({
+	key: "canSpectate",
+	default: false
+});

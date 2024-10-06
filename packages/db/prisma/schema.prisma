@@ -15,6 +15,7 @@ model User {
   submissions Submission[]
   arenaId     Int?
   arena       Arena?    @relation(fields: [arenaId], references: [id])
+  standings   Standings[]
 }
 
 model Problem {
@@ -56,7 +57,9 @@ model Arena {
   endTime     DateTime
   users       User[]
   admin       Int
+  timeLimit   Int      @default(1800)
   submissions Submission[]
+  Standings   Standings[]
 }
 
 model ArenaProblem {
@@ -73,6 +76,16 @@ model TestCase {
   output      String
   problemId   Int
   problem     Problem  @relation(fields: [problemId], references: [id])
+}
+
+model Standings {
+  id          Int      @id @default(autoincrement())
+  arenaId     Int
+  arena       Arena    @relation(fields: [arenaId], references: [id])
+  rank        Int
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  @@unique([arenaId, userId])
 }
 
 enum Difficulty {

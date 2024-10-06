@@ -18,30 +18,11 @@ export default function Playground({ token }: { token: string }) {
 	const Problem = Problems[currentProblemIndex];
 	const id = Problem?.id;
 	const boilerplate = Problem?.boilerplate;
-	const setConsole = useSetRecoilState(consoleVisible);
-	async function submit_fn() {
-		const test_id = await submit({ arena_token: token, problem_id: String(id), source_code: code, language_id: language });
-		ws.sendMessage({
-			method: "SUBSCRIBE",
-			param: {
-				key: test_id
-			}
-		})
-		ws.attachSolutionCallback(test_id, (message) => {
-			if (message.submission_id) {
-				verifySubmission(message.submission_id);
-			}
-			setProblems((prev) => {
-				return prev.map((problem) => {
-					if (problem.id === id) {
-						problem.testResult = message;
-					}
-					return problem;
-				})
-			});
-			setConsole(true);
-		});
-	}
+	const [code, setCode] = useState(boilerplate);
+	useEffect(() => {
+		setCode(boilerplate);
+	}, [boilerplate]);
+
 	function handleChangeMirror(value: string, viewUpdate: any) {
 		ws.sendMessage({
 			method: "PUBLISH",
@@ -66,37 +47,21 @@ export default function Playground({ token }: { token: string }) {
 		});
 		setCode(value);
 	}
-	const [language, setLanguage] = useState(63);
-	const [code, setCode] = useState(boilerplate);
 
-	useEffect(() => {
-		setCode(boilerplate);
-	}, [boilerplate]);
 	return (
-		<Pane className= "!overflow-hidden" >
-		<div className='w-full  code-editor h-full overflow-auto' >
-			<CodeMirror
-					value={ code }
-	onChange = {(value, viewUpdate) => {
-		handleChangeMirror(value, viewUpdate);
-	}
-}
-className = "bg-red-200 text-sm"
-theme = { vscodeDark }
-extensions = { [javascript()]}
-	/>
-	</div>
-	< div className = "sticky bottom-0 w-full bg-[#1e1e1e] flex gap-2 px-4 rounded-md" >
-		<button
-					className={ `relative bg-[#FFFFFF1A] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400` }>
-	Run
-	</button>
-	< button
-onClick = { submit_fn }
-className = {`relative bg-[#2CBB5D] transition-200 my-2 px-4 py-[4px] rounded-lg  text-white`}>
-	Submit
-	</button>
-	</div>
-	</Pane>
+		<Pane className="!overflow-hidden" >
+			<div className='w-full  code-editor h-full overflow-auto' >
+				<CodeMirror
+					value={code}
+					onChange={(value, viewUpdate) => {
+						handleChangeMirror(value, viewUpdate);
+					}
+					}
+					className="bg-red-200 text-sm"
+					theme={vscodeDark}
+					extensions={[javascript()]}
+				/>
+			</div>
+		</Pane>
 	);
 }

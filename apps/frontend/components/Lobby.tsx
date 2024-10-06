@@ -7,10 +7,12 @@ import { useEffect, useState } from "react";
 import { WebSocketManager } from "@/WebsocketManager";
 import { useRouter } from "next/navigation";
 import startArena from "@/actions/start-arena";
+import { toast } from "react-toastify";
 interface User {
 	name: string | null,
 	id: number,
-	admin: boolean
+	admin: boolean,
+	rank: number | undefined
 }
 const ws = WebSocketManager.getInstance();
 export default function Lobby({ data, token }: { data: User[], token: string }) {
@@ -20,12 +22,36 @@ export default function Lobby({ data, token }: { data: User[], token: string }) 
 	const allUsersId = Users.map((user) => user.id);
 	const router = useRouter();
 	const isAdmin = Users.find((user) => user.id === session?.data?.user.id)?.admin;
+
+	const userJoinCallback = (message: any) => {
+
+		if (message.userId === session?.data?.user.id) {
+			return;
+		}
+		toast.success(`${message.name} joined the arena!`);
+		setUser((Users) => [...Users, { name: message.name, id: message.userId, admin: false, rank: undefined }]);
+	}
+
+	const arenaStartingCallback = (message: any) => {
+		assert(message.id === token, "Invalid token");
+		if (!isAdmin) {
+			toast.success("Arena started! Redirecting...");
+			redirect();
+		}
+	}
+	useEffect(() => {
+		ws.attachCallback("JOIN_ARENA", userJoinCallback);
+		return () => {
+			ws.detachCallback("JOIN_ARENA", userJoinCallback);
+		}
+	}, [session])
+
 	useEffect(() => {
 		if (isJoined) {
-			ws.attachCallback("START_ARENA", (message) => {
-				assert(message.id === token, "Invalid token");
-				redirect();
-			});
+			ws.attachCallback("START_ARENA", arenaStartingCallback);
+		}
+		return () => {
+			ws.detachCallback("START_ARENA", arenaStartingCallback);
 		}
 	}, [isJoined]);
 
@@ -35,22 +61,33 @@ export default function Lobby({ data, token }: { data: User[], token: string }) 
 	function redirect() {
 		router.push(`/arena/${token}/battle`);
 	}
-	function _startArena() {
-		startArena(token);
-	}
-	async function _JoinArena() {
+	const _startArena = () => toast.promise(async () => {
+		await startArena(token);
+		router.push(`/arena/${token}/battle`);
+	}, {
+		pending: "Starting Arena...",
+		success: "Started! Redirecting...",
+		error: "Oopsie Daisy! Something went wrong...",
+	});
+	const _JoinArena = () => toast.promise(new Promise(async (resolve, reject) => {
 		assert(session?.data, "Session not found");
 		const userId = session?.data?.user.id;
 		const name = session?.data?.user.name;
-		setUser([...Users, { name: name, id: userId, admin: false }]);
 		const status = await JoinArena(token);
+
+		setUser((Users) => [...Users, { name: name, id: userId, admin: false, rank: undefined }]);
 		assert(status, "Failed to join arena!");
 		ws.attachCallback("START_ARENA", (message) => {
 			assert(message.id === token, "Invalid token");
 			redirect();
 		});
 		setIsJoined(true);
-	}
+		resolve(true);
+	}), {
+		pending: "Joining...",
+		success: "Joined!",
+		error: "Oopsie Daisy! Something went wrong...",
+	});
 	return (
 		<Container>
 			<div className="flex justify-center items-center h-full" >
@@ -59,11 +96,16 @@ export default function Lobby({ data, token }: { data: User[], token: string }) 
 						Users.map((user) => {
 							return (
 								<div key={user.id} className="text-white cursor-pointer rounded-xl bg-[#292C31] p-3 text-center" >
-									{
-										user.admin ?
-											<div className="text-white"> {user.name} ~</div>
-											: <div className="text-white" > {user.name} </div>
-									}
+									<div className="text-white" > {user.name}
+										{
+											user.admin &&
+											<span className="text-white" > ~</span>
+										}
+										{
+											user.rank &&
+											<span className="text-white" > #{user.rank} </span>
+										}
+									</div>
 								</div>
 							)
 						})

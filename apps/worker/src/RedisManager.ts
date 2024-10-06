@@ -1,3 +1,4 @@
+import { payload } from "@repo/types";
 import { createClient, RedisClientType } from "redis"
 
 export default class RedisManager {
@@ -17,18 +18,18 @@ export default class RedisManager {
 		}
 		return RedisManager.instance;
 	}
-	async getFromQueue() {
+	async getFromQueue(): Promise<({ key: "submission" | "time_control", element: string })> {
 		return new Promise((resolve) => {
-			this.client.brPop("submission", 0).then((response) => {
+			this.client.brPop(["submission", "time_control"], 0).then((response) => {
 				if (!response) {
 					throw new Error("No Response!")
 				}
-				resolve(JSON.parse(response.element))
+				resolve({ key: response.key as "submission" | "time_control", element: response.element })
 			})
 		})
 	}
 	// Todo: Typecasing for sending to api back
-	publishSubmission(id: string, response: any) {
+	publish(id: string, response: any) {
 		this.publisher.publish(id, JSON.stringify(response))
 	}
 }
