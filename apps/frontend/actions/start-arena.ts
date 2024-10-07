@@ -27,6 +27,14 @@ export default async function startArena(token: string) {
 				}
 			},
 		});
+		await db.submission.deleteMany({
+			where: {
+				arena: {
+					token,
+					admin: session.user.id,
+				}
+			},
+		});
 		redis.publish(token, {
 			e: "START_ARENA",
 			id: token

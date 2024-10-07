@@ -82,6 +82,7 @@ model Standings {
   id          Int      @id @default(autoincrement())
   arenaId     Int
   arena       Arena    @relation(fields: [arenaId], references: [id])
+  resigned    Boolean  @default(false)
   rank        Int
   userId      Int
   user        User     @relation(fields: [userId], references: [id])

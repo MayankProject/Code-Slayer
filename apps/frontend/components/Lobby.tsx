@@ -47,9 +47,7 @@ export default function Lobby({ data, token }: { data: User[], token: string }) 
 	}, [session])
 
 	useEffect(() => {
-		if (isJoined) {
-			ws.attachCallback("START_ARENA", arenaStartingCallback);
-		}
+		ws.attachCallback("START_ARENA", arenaStartingCallback);
 		return () => {
 			ws.detachCallback("START_ARENA", arenaStartingCallback);
 		}
@@ -88,6 +86,7 @@ export default function Lobby({ data, token }: { data: User[], token: string }) 
 		success: "Joined!",
 		error: "Oopsie Daisy! Something went wrong...",
 	});
+
 	return (
 		<Container>
 			<div className="flex justify-center items-center h-full" >
@@ -98,12 +97,7 @@ export default function Lobby({ data, token }: { data: User[], token: string }) 
 								<div key={user.id} className="text-white cursor-pointer rounded-xl bg-[#292C31] p-3 text-center" >
 									<div className="text-white" > {user.name}
 										{
-											user.admin &&
-											<span className="text-white" > ~</span>
-										}
-										{
-											user.rank &&
-											<span className="text-white" > #{user.rank} </span>
+											user.rank !== undefined && <span className="text-white" > {user.rank === 0 ? "#resigned" : `#${user.rank}`} </span>
 										}
 									</div>
 								</div>

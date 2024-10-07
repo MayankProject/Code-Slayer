@@ -3,8 +3,9 @@ import assert from "assert";
 import { getServerSession } from "next-auth";
 import db from "../../../packages/db/src";
 import { authOptions } from "@/app/authConfig";
-import { redirect } from "next/navigation";
+import RedisManager from "@/RedisManager";
 
+const redis = RedisManager.getInstance();
 export default async function verifySubmission(submission_id: number, token: string) {
 	const session = await getServerSession(authOptions);
 	assert(session, "Session not found");
@@ -21,7 +22,20 @@ export default async function verifySubmission(submission_id: number, token: str
 		throw new Error("submission not found");
 	}
 
-	// Check if user has solved all problems in this arena
+	// return when resigned
+	const userHasResigned = await db.standings.findFirst({
+		where: {
+			userId: session.user.id,
+			arena: {
+				token: token
+			},
+			resigned: true,
+		}
+	});
+	if (userHasResigned) {
+		return false;
+	}
+
 	const userWithSubmission = await db.user.findFirst({
 		where: {
 			id: session.user.id,
@@ -49,7 +63,7 @@ export default async function verifySubmission(submission_id: number, token: str
 
 	const arena = await db.arena.findFirst({
 		where: {
-			token: token
+			token: token,
 		},
 		select: {
 			id: true,
@@ -61,9 +75,20 @@ export default async function verifySubmission(submission_id: number, token: str
 			Standings: {
 				select: {
 					id: true,
+					resigned: true,
+				},
+			},
+			users: {
+				select: {
+					id: true,
 				}
 			}
 		}
+	});
+	assert(arena, "Arena not found");
+
+	const notResignedStandings = arena.Standings.filter((standing) => {
+		return !standing.resigned;
 	});
 
 	if (userWithSubmission && arena) {
@@ -77,16 +102,35 @@ export default async function verifySubmission(submission_id: number, token: str
 			return allSubmissions.includes(problem);
 		});
 		if (solvedAllProblems) {
-			const prevStandings = arena.Standings.length;
+			const prevStandings = notResignedStandings.length;
 			try {
-				await db.standings.create({
+				const _createdStanding = await db.standings.create({
 					data: {
 						userId: session.user.id,
 						arenaId: arena.id,
 						rank: prevStandings + 1,
 					}
 				});
+				assert(_createdStanding, "Failed to create standing");
+
+				if (arena.Standings.length + 1 === arena.users.length) {
+					await db.arena.update({
+						where: {
+							id: arena.id
+						},
+						data: {
+							phase: "Lobby"
+						}
+					});
+					redis.publish(
+						token,
+						{
+							e: "FINISH_ARENA",
+						}
+					)
+				}
 				return { standings: prevStandings + 1 };
+
 			} catch (error) {
 				console.log("Failed to create standings");
 			}

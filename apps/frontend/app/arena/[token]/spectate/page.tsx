@@ -33,12 +33,6 @@ export default async function({ params: { token } }: { params: { token: string }
 		}
 	});
 
-	// If user has not submitted in this arena
-	if (!userWithSubmission) {
-		return (
-			redirect(`/arena/${token}/battle`)
-		);
-	}
 
 	const arena = await db.arena.findFirst({
 		where: {
@@ -55,11 +49,42 @@ export default async function({ params: { token } }: { params: { token: string }
 				select: {
 					problemId: true,
 				}
-			}
+			},
+			phase: true
 		}
 	});
 
 	assert(arena, "Arena not found");
+
+	if (arena.phase === "Lobby") {
+		return (
+			redirect(`/arena/${token}`)
+		);
+	}
+
+	// let the user pass if they have already resigned
+	const userHasResigned = await db.standings.findFirst({
+		where: {
+			userId: session.user.id,
+			arena: {
+				token: token
+			},
+			resigned: true,
+		}
+	});
+
+	if (userHasResigned) {
+		return (
+			<Spectate usersDetails={arena?.users} />
+		);
+	}
+
+	// Restrict if user has not submitted in this arena at all
+	if (!userWithSubmission) {
+		return (
+			redirect(`/arena/${token}/battle`)
+		);
+	}
 
 	// Check if user has solved all problems in this arena
 	const allSubmissions = userWithSubmission.submissions.map((submission) => {
@@ -80,6 +105,6 @@ export default async function({ params: { token } }: { params: { token: string }
 	}
 
 	return (
-		<Spectate usersDetails= { arena?.users } />
+		<Spectate usersDetails={arena?.users} />
 	);
 }

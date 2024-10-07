@@ -134,35 +134,3 @@
   left: 40px !important;
   width: 100%;
 }
-
-@keyframes slideInFromLeft {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideOutToRight {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Customizing the toast container and toast styles */
-.Toastify__toast-container {
-  bottom: 10px;
-  right: 10px;
-}
-
-.Toastify__toast--slide-enter {
-  animation: slideInFromLeft 0.5s ease forwards;
-}
-
-.Toastify__toast--slide-exit {
-  animation: slideOutToRight 0.5s ease forwards;
-}
