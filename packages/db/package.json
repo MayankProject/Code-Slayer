@@ -7,7 +7,7 @@
     "prisma": "5.19.1"
   },
   "scripts": {
-    "build": "tsc -b"
+    "build": "npx prisma generate && tsc -b"
   },
   "exports": {
     "./client": "./src/index.ts"
