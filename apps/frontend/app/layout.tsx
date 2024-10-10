@@ -5,6 +5,9 @@ import "./globals.css";
 import Authenticate from "./Authenticate";
 import { Slide, toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { Suspense } from "react";
+import Progressbar from "@/components/Progressbar";
+import BottomNavigation from "@/components/BottomNavigation";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -29,11 +32,16 @@ export default function RootLayout({
 
   return (
     <html lang="en" >
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased text-white bg-black`}>
+      <body className={`kanit-regular overflow-hidden min-h-screen antialiased text-white bg-gradient-to-br`} style={{
+        background: 'linear-gradient(45deg, rgb(0, 0, 0), rgb(13, 12, 12), rgb(0, 0, 0))',
+      }
+      } >
+
         <Providers>
           <Authenticate>
+            <Progressbar />
             {children}
-            < ToastContainer
+            <ToastContainer
               position="bottom-right"
               transition={Slide}
               autoClose={1000}
@@ -46,6 +54,7 @@ export default function RootLayout({
               draggable
               pauseOnHover
             />
+
           </Authenticate>
         </Providers>
       </body>

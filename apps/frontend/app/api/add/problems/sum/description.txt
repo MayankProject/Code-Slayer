@@ -1,0 +1,28 @@
+# Problem Statement
+
+You are given two integers, a and b. Your task is to calculate the sum of these two numbers.
+
+### Input
+
+- Two integers a and b.
+
+### Output
+
+- A single integer representing the sum of a and b $$.
+
+### Example
+
+**Input:**
+```
+a = 5
+b = 7
+```
+
+**Output:**
+```
+12
+```
+
+### Constraints
+
+- -10^9  < a, b < 10^9

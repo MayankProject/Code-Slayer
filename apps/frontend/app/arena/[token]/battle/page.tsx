@@ -8,7 +8,6 @@ export default async function Battle({ params: { token } }: { params: { token: s
 	const session = await getServerSession(authOptions)
 	assert(session, "Unauthenticated");
 	const userId = session.user.id;
-
 	const arena = await db.arena.findFirst({
 		where: {
 			token,
@@ -16,6 +15,11 @@ export default async function Battle({ params: { token } }: { params: { token: s
 		select: {
 			phase: true,
 			timeLimit: true,
+			Standings: {
+				select: {
+					userId: true,
+				}
+			},
 		},
 	});
 
@@ -24,6 +28,10 @@ export default async function Battle({ params: { token } }: { params: { token: s
 	if (arena.phase === "Lobby") {
 		return redirect("/arena/" + token);
 	}
+
+	const spectateEligible = arena.Standings.some((standing) => {
+		return standing.userId === userId;
+	});
 
 	const problems = await db.arena.findFirst({
 		where: {
@@ -43,7 +51,14 @@ export default async function Battle({ params: { token } }: { params: { token: s
 							title: true,
 							description: true,
 							difficulty: true,
-							boilerplate: true
+							boilerplate: true,
+							TestCases: {
+								select: {
+									input: true,
+									output: true,
+									id: true,
+								}
+							},
 						}
 					}
 				}
@@ -52,8 +67,7 @@ export default async function Battle({ params: { token } }: { params: { token: s
 	});
 	assert(problems, "No battle found");
 	const parsedProblems = problems?.problems.map(problem => problem.problem);
-	console.log(parsedProblems);
 	return (
-		<Smackdown token= { token } problemsData = { parsedProblems } timeLimit = { arena.timeLimit } />
+		<Smackdown token={token} spectateEligible={spectateEligible} problemsData={parsedProblems} timeLimit={arena.timeLimit} />
 	)
 }

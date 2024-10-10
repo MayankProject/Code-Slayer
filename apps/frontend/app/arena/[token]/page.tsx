@@ -2,6 +2,7 @@ import Lobby from "@/components/Lobby";
 import db from "../../../../../packages/db/src";
 import assert from "assert";
 export default async function Arena({ params: { token } }: { params: { token: string } }) {
+
 	const arenaDetails = await db.arena.findFirst({
 		where: {
 			token: token,
@@ -14,6 +15,7 @@ export default async function Arena({ params: { token } }: { params: { token: st
 				}
 			},
 			admin: true,
+			phase: true
 		},
 
 	});
@@ -36,6 +38,6 @@ export default async function Arena({ params: { token } }: { params: { token: st
 		}
 	})
 	return (
-		<Lobby data= { arenaUsers } token = { token } />
+		<Lobby data={arenaUsers} status={arenaDetails.phase} token={token} />
 	);
 }

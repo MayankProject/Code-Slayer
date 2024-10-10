@@ -39,6 +39,7 @@ export default async function createArena() {
 		return token;
 	}
 	catch (e) {
+		console.log(e);
 		throw new Error("Could not create arena");
 	}
 }

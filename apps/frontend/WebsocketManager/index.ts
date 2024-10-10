@@ -47,7 +47,6 @@ export class WebSocketManager {
 		this.callbacks[stream] = [callback]
 	}
 	detachCallback(stream: string, callback: (data: any) => void) {
-		console.log("detaching callback", this.callbacks, stream, this.callbacks[stream])
 		this.callbacks[stream] = this.callbacks[stream].filter(call => call !== callback)
 	}
 	handleIncomingData(data: any) {
@@ -60,7 +59,6 @@ export class WebSocketManager {
 			}
 		}
 		if (this.callbacks[data.e]) {
-			console.log("Handling callback", data.e)
 			this.callbacks[data.e].forEach((callback) => {
 				callback(data)
 			})

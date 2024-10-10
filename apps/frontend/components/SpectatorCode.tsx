@@ -18,16 +18,19 @@ export default function SpectatorCode({ id }: { id: string }) {
 		});
 	}, []);
 	return (
-		<CodeMirror
-			value={code}
-			onCreateEditor={
-				(editor) => {
-					editorRef.current = editor;
+
+		<div className='w-full rounded-lg code-editor h-full overflow-auto' >
+			<CodeMirror
+				value={code}
+				onCreateEditor={
+					(editor) => {
+						editorRef.current = editor;
+					}
 				}
-			}
-			className="bg-red-200 text-sm"
-			theme={vscodeDark}
-			extensions={[javascript()]}
-		/>
+				className="bg-red-200 text-sm"
+				theme={vscodeDark}
+				extensions={[javascript()]}
+			/>
+		</div>
 	);
 }	

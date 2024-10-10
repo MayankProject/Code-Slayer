@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import Pane from "./Pane";
 import Console from "./Console";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { allProblems, canSpectateState, consoleVisible, currentProblem, timeState } from "@/state";
+import { allProblems, canSpectateState, consoleVisible, currentProblem, loader, timeState } from "@/state";
 import { useRouter } from "next/navigation";
 import finishArena from "@/actions/finish-arena";
 import { WebSocketManager } from "@/WebsocketManager";
@@ -23,14 +23,20 @@ export interface Problem {
 	description: string;
 	difficulty: string;
 	boilerplate: string;
+	TestCases: {
+		id: number;
+		input: string;
+		output: string;
+	}[]
 }
 
 const ws = WebSocketManager.getInstance();
-export default function Smackdown({ token, problemsData, timeLimit }: { token: string, problemsData: Problem[], timeLimit: number }) {
+export default function Smackdown({ token, problemsData, spectateEligible, timeLimit }: { token: string, problemsData: Problem[], spectateEligible: boolean, timeLimit: number }) {
 	const [Problems, setProblems] = useRecoilState(allProblems);
 	const [time, setTime] = useRecoilState(timeState);
 	const [problemIndex, setProblemIndex] = useRecoilState(currentProblem);
 	const [Problem, setProblem] = useState<Problem>(Problems[problemIndex]);
+	const setLoader = useSetRecoilState(loader);
 	const [_Console, setConsole] = useRecoilState(consoleVisible);
 	const [nProblems, setNProblems] = useState(problemsData.length);
 	const [canSpectate, setCanSpectate] = useRecoilState(canSpectateState);
@@ -60,18 +66,23 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 	};
 	const arenaFinishedCallback = (() => {
 		finishArena(token);
+		const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
+		setLoader({ percentage: randomNumber });
 		router.push("/arena/" + token);
 	})
 	useEffect(() => {
+		setLoader({ percentage: undefined });
 
 		ws.attachCallback("TIME_CONTROL", timeUpdateCallback);
 		ws.attachCallback("FINISH_ARENA", arenaFinishedCallback);
 
 		setTime(timeLimit);
 		setProblemIndex(0);
+		setCanSpectate(spectateEligible);
+
 		setProblems(() => {
 			return problemsData.map((problem) => {
-				return { ...problem, testResult: {} };
+				return { ...problem, testResult: {}, PassedTestCases: [], FailedTestCases: [] };
 			});
 		});
 
@@ -84,6 +95,7 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 		const res = await resign(token);
 		if (res) {
 			resolve(true);
+			setCanSpectate(true);
 		}
 		reject(false);
 	}), {
@@ -121,7 +133,11 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 						return <div className="flex gap-2 items-center" >
 							<h1 onClick={
 								() => {
+
+									const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
+									setLoader({ percentage: randomNumber });
 									router.push(`/arena/${token}/spectate`);
+
 								}
 							}> Spectate! </h1>
 						</div>;
@@ -129,7 +145,12 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 					setCanSpectate(true);
 				}
 			}
-			if (message.status.id === 3) {
+			const restStdout = message.stdout.trim().split("\n").slice(0, -2).join("\n");
+			const PassedAndFailedTestCases = message.stdout.trim().split("\n").slice(-2).map((x: string) => JSON.parse(x))
+			const PassedTestCases = PassedAndFailedTestCases[0]
+			const FailedTestCases = PassedAndFailedTestCases[1]
+
+			if (FailedTestCases.length === 0) {
 				resolve(true);
 			}
 			else {
@@ -138,7 +159,9 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 			setProblems((prev) => {
 				return prev.map((problem) => {
 					if (problem.id === id) {
-						problem.testResult = message;
+						problem.PassedTestCases = PassedTestCases;
+						problem.FailedTestCases = FailedTestCases;
+						problem.testResult = { ...message, stdout: restStdout, status: { id: FailedTestCases.length === 0 ? 3 : false } };
 					}
 					return problem;
 				})
@@ -154,7 +177,7 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 		setProblem(Problems[problemIndex]);
 	}, [problemIndex, Problems]);
 	return (
-		<div className="p-2 h-screen w-full flex-1 overflow-scroll resize" >
+		<div className="p-2 h-1 min-h-screen w-full flex-1 overflow-scroll resize" >
 			<Allotment>
 				<Allotment.Pane className="px-[4px]" >
 					<div className="flex justify-between px-1 items-center" >
@@ -169,6 +192,8 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 							< div className={`relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`
 							}
 								onClick={() => {
+									const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
+									setLoader({ percentage: randomNumber });
 									router.push(`/arena/${token}`);
 								}}
 							>
@@ -190,6 +215,8 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 									`relative flex items-center border cursor-pointer hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`
 								}
 									onClick={() => {
+										const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
+										setLoader({ percentage: randomNumber });
 										router.push(`/arena/${token}/spectate`);
 									}
 									}
@@ -256,6 +283,7 @@ export default function Smackdown({ token, problemsData, timeLimit }: { token: s
 					</Allotment.Pane>
 				</Allotment>
 			</Allotment>
+
 		</div >
 	);
 }

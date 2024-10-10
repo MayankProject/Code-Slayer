@@ -1,8 +1,14 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '../../.env' });
+
 import RedisManager from "./RedisManager";
 import Worker from "./Worker";
 import { payload } from "@repo/types"
+
+
 const worker: Worker = Worker.getInstance()
 async function main() {
+	console.log("here", process.env.REDIS_URL)
 	const redis: RedisManager = RedisManager.getInstance()
 	while (1) {
 		const res = await redis.getFromQueue()
@@ -11,6 +17,7 @@ async function main() {
 			if (key === "submission") {
 				const Payload = element
 				const response = await worker.Submit({ arena_token: Payload.arena_token, problem_id: Payload.problem_id, source_code: Payload.source_code, language_id: Payload.language_id })
+				console.log(response)
 				redis.publish(Payload.id, { id: Payload.id, e: "SUBMISSION", ...response })
 			}
 			else {

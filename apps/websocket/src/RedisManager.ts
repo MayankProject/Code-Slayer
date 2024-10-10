@@ -1,12 +1,18 @@
 import { createClient, RedisClientType } from "redis"
 import { SubscriptionManager } from "./SubscriptionManager";
+import "dotenv/config"
+
 export default class RedisManager {
 	private client: RedisClientType;
 	private publisher: RedisClientType;
 	private static instance: RedisManager;
 	private constructor() {
-		this.client = createClient();
-		this.publisher = createClient();
+		this.client = createClient({
+			url: process.env.REDIS_URL
+		});
+		this.publisher = createClient({
+			url: process.env.REDIS_URL
+		});
 		this.connectToRedis()
 	}
 	static getInstance() {

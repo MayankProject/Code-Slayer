@@ -1,10 +1,10 @@
 "use client";
+import BottomNavigation from "@/components/BottomNavigation";
 import { WebSocketManager } from "@/WebsocketManager";
 import { useEffect } from "react";
 const ws = WebSocketManager.getInstance();
 export default function Layout({ children, params: { token } }: { children: React.ReactNode, params: { token: string } }) {
 	useEffect(() => {
-		console.log("Joining " + token);
 		ws.sendMessage({
 			method: "SUBSCRIBE",
 			param: {
@@ -12,7 +12,6 @@ export default function Layout({ children, params: { token } }: { children: Reac
 			}
 		})
 		return () => {
-			console.log("Leaving" + token);
 			ws.sendMessage({
 				method: "UNSUBSCRIBE",
 				param: {
@@ -21,9 +20,10 @@ export default function Layout({ children, params: { token } }: { children: Reac
 			})
 		}
 	}, []);
+
 	return (
 		<>
-		{ children }
+			{children}
 		</>
 	);
 }

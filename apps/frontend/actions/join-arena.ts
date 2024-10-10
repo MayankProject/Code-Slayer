@@ -24,7 +24,8 @@ export default async function joinArena(token: string) {
 	});
 
 	redis.publish(token, {
-		e: "JOIN_ARENA",
+		e: "USER_UPDATE",
+		task: "JOIN_ARENA",
 		userId: userId,
 		name: session.user.name,
 	});

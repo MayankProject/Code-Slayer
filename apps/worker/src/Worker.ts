@@ -30,13 +30,20 @@ export default class Worker {
 		assert(problem?.TestCases, "TestCases not found");
 
 		const finalSourceCode = this.injectTestCase(payload.source_code, problem.TestCases, problem.testBiolerCode)
+		console.log(finalSourceCode);
 		const { data: { token } }: {
 			data: {
 				token: string;
 			}
 		} = await axios.post(`${JUDGE0_URL}/submissions`, { ...payload, source_code: finalSourceCode })
 		const data = await this.getResult(token);
-		if (data.status.id === 3) {
+		console.log(data.stdout);
+		console.log(data.stdout.trim().split("\\n").slice(-2));
+		const PassedAndFailedTestCases = data.stdout.trim().split("\n").slice(-2).map((x: string) => JSON.parse(x))
+		console.log(PassedAndFailedTestCases);
+		const PassedTestCases = PassedAndFailedTestCases[0]
+		const FailedTestCases = PassedAndFailedTestCases[1]
+		if (FailedTestCases.length === 0) {
 			const arenaId = await db.arena.findFirst({
 				where: {
 					token: payload.arena_token,
@@ -59,12 +66,17 @@ export default class Worker {
 			})
 			data.submission_id = submissionId.id;
 		}
-		return data;
+		console.log("dsad");
+		return { ...data, PassedTestCases, FailedTestCases };
 
 	}
 
 	injectTestCase(source_code: string, TestCases: { input: string, output: string }[], testBoilerCode: string): string {
-		let extraCode = new String("");
+		let extraCode = new String(`
+			const passedTestCases = [];
+			const failedTestCases = [];
+
+								   `);
 		for (let i = 0; i < TestCases.length; i++) {
 			const testcase = TestCases[i];
 			let _testBoilerCode = testBoilerCode;
@@ -75,12 +87,13 @@ export default class Worker {
 			_testBoilerCode = _testBoilerCode.replace("#OUTPUT#", testcase.output).replace("#i#", String(i + 1));
 			_testBoilerCode = `
 			try {
-				console.log("----------------Testcase ${i + 1} Output Begin-------------\\n\\n")
+				console.log("--Testcase ${i + 1} Output \\n\\n")
 				${_testBoilerCode}
-				console.log("\\n\\n")
-				console.log("----------------Testcase ${i + 1} Output End-------------")
+				passedTestCases.push(${i + 1});
+				console.log("\\n\\n--Testcase ${i + 1} Output End")
 			} catch (error) {
-				throw new Error(\`Testcase ${i + 1} Failed\`)
+				failedTestCases.push(${i + 1});
+				console.log("\\n\\n--Testcase ${i + 1} Output End")
 			}
 			`;
 
@@ -95,8 +108,11 @@ export default class Worker {
 			}
 			extraCode += wrapInsideFunction(_testBoilerCode);
 		}
+		extraCode += `
+			console.log(passedTestCases);
+			console.log(failedTestCases);
+		`
 		return source_code + extraCode;
-
 	}
 
 	async getResult(token: string, interval?: number): Promise<any> {

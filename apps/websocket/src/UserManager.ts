@@ -55,17 +55,21 @@ class User {
 	}) {
 		const Manager = SubscriptionManager.getInstance()
 		console.log(message.param)
-		switch (message.method) {
-			case "SUBSCRIBE":
-				Manager.Subscribe(this.ws, message.param.key)
-				break;
-			case "UNSUBSCRIBE":
-				Manager.Unsubscribe(this.ws, message.param.key)
-				break;
-			case "PUBLISH":
-				console.log(`User ${this.id} PUBLISHING ${message ? message.param.key : ""}`)
-				RedisManager.getInstance().publish(message.param.key, JSON.stringify(message.param.data))
-				break;
+		try {
+			switch (message.method) {
+				case "SUBSCRIBE":
+					Manager.Subscribe(this.ws, message.param.key)
+					break;
+				case "UNSUBSCRIBE":
+					Manager.Unsubscribe(this.ws, message.param.key)
+					break;
+				case "PUBLISH":
+					console.log(`User ${this.id} PUBLISHING ${message ? message.param.key : ""}`)
+					RedisManager.getInstance().publish(message.param.key, JSON.stringify(message.param.data))
+					break;
+			}
+		} catch (error) {
+			console.log(error)
 		}
 
 	}

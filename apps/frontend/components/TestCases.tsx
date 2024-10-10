@@ -1,53 +1,53 @@
 import Pane from "@/components/Pane";
 import Tabs from "@/components/Tabs";
 import ExampleBody from "@/components/ExampleBody";
+import { allProblems, currentProblem } from "@/state";
+import { useRecoilValue } from "recoil";
+import { useEffect, useState } from "react";
+import { Problem } from "./Smackdown";
 
 export default function TestCases() {
-	const testCases = [
-		{
-			id: 'Case 1',
-			input: "nums = [2,7,11,15], target = 9",
-			output: "[0, 1]"
-		},
-		{
-			id: 'Case 2',
-			input: "nums = [1, 5, 3, 6], target = 9",
-			output: "[1, 3]"
-		},
-		{
-			id: 'Case 3',
-			input: "nums = [3, 2, 4], target = 6",
-			output: "[1, 2]"
-		}
-	];
+	const Problems = useRecoilValue(allProblems);
+	const problemIndex = useRecoilValue(currentProblem);
+	const [problem, setProblem] = useState<Problem>(Problems[problemIndex]);
+
+	useEffect(() => {
+		console.log(Problems, problemIndex);
+		setProblem(Problems[problemIndex]);
+	}, [Problems, problemIndex]);
+
 	return (
 		<div className="overflow-scroll" >
-			<div className="p-3">
-				<Tabs
+			<div className="p-3" >
+				{problem && <Tabs
 					TabHead={
-						testCases.map((testCase) => (
+						problem.TestCases.map((testCase, index) => (
 							{
-								title: testCase.id,
-								key: testCase.id
+								title: "Testcase" + String(index + 1),
+								key: String(index + 1)
 							}
 						))
 					}
 					TabContent={
-						testCases.map((testCase) => (
+						problem.TestCases.map((testCase, index) => (
 							{
-								key: testCase.id,
+								key: String(index + 1),
 								content: (
-									<div className="font-bold">
+									<div className="font-bold" >
 										<div>
-											<h3>Input</h3>
+											<h3>Input </h3>
 											<ExampleBody>
-												{testCase.input}
+												<div className="group font-menlo relative whitespace-pre-wrap break-all leading-[30px]" >
+													{testCase.input.replaceAll("\\n", "\n")}
+												</div>
 											</ExampleBody>
 										</div>
-										<div>
-											<h3>Output</h3>
+										< div >
+											<h3>Output </h3>
 											<ExampleBody>
-												{testCase.output}
+												<div className="group font-menlo relative whitespace-pre-wrap break-all leading-[30px]" >
+													{testCase.output.replaceAll("\\n", "\n")}
+												</div>
 											</ExampleBody>
 										</div>
 									</div>
@@ -55,7 +55,7 @@ export default function TestCases() {
 							}
 						))
 					}
-				/>
+				/>}
 			</div>
 		</div>
 	)

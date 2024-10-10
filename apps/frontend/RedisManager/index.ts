@@ -1,14 +1,20 @@
 import { payload } from "@repo/types";
 import { createClient, RedisClientType } from "redis"
+import 'dotenv/config';
+
 export default class RedisManager {
 	private client: RedisClientType;
 	private publisher: RedisClientType;
 	private static instance: RedisManager;
 	private constructor() {
 		// publisher : Pushes data to queue
-		this.client = createClient();
+		this.client = createClient({
+			url: process.env.REDIS_URL
+		});
 		this.client.connect()
-		this.publisher = createClient();
+		this.publisher = createClient({
+			url: process.env.REDIS_URL
+		});
 		this.publisher.connect()
 	}
 	static getInstance() {

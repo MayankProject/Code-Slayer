@@ -40,6 +40,11 @@ export default async function({ params: { token } }: { params: { token: string }
 		},
 		select: {
 			users: {
+				where: {
+					NOT: {
+						id: session.user.id
+					}
+				},
 				select: {
 					id: true,
 					name: true,
@@ -75,7 +80,7 @@ export default async function({ params: { token } }: { params: { token: string }
 
 	if (userHasResigned) {
 		return (
-			<Spectate usersDetails={arena?.users} />
+			<Spectate usersDetails= { arena?.users } />
 		);
 	}
 
@@ -105,6 +110,6 @@ export default async function({ params: { token } }: { params: { token: string }
 	}
 
 	return (
-		<Spectate usersDetails={arena?.users} />
+		<Spectate usersDetails= { arena?.users } />
 	);
 }
