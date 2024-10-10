@@ -1,0 +1,3 @@
+[services]
+websocket = { path = "apps/websocket" }
+worker = { path = "apps/worker" }
