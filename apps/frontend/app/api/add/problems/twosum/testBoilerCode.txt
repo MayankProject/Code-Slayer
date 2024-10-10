@@ -1,7 +1,0 @@
-const array = #INPUT_1#
-const target = #INPUT_2#
-const output = #OUTPUT#
-const result = twoSum(array, target)
-if (JSON.stringify(result.sort()) !== JSON.stringify(output.sort())) {
-	throw new Error(`Test Case #i# Failed, Expected ${output} but got ${result} instead!`)
-				}
