@@ -1,5 +1,5 @@
 "use server";
-import db from "../../../packages/db/src";
+import db from "@/db";
 var nameList = [
 	'Time', 'Past', 'Future', 'Dev',
 	'Fly', 'Flying', 'Soar', 'Soaring', 'Power', 'Falling',

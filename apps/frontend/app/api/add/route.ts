@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import db from "../../../../../packages/db/src/"
+import db from "@/db";
 import { readFileSync } from "fs";
 export async function GET() {
 	let description = readFileSync("/home/sergio/Code/Code-Smack/apps/frontend/app/api/add/problems/twosum/description.md", "utf8")

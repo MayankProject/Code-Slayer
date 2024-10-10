@@ -1,6 +1,6 @@
 "use server";
 import { getServerSession } from "next-auth";
-import db from "../../../packages/db/src";
+import db from "@/db";
 import { authOptions } from "@/app/authConfig";
 export default async function createArena() {
 	const token = Math.random().toString(36).substring(2, 7);

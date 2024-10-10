@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import db from "../../../../../../packages/db/src";
+import db from "@/db";
 import { authOptions } from "@/app/authConfig";
 import assert from "assert";
 import Smackdown from "@/components/Smackdown";
@@ -68,6 +68,6 @@ export default async function Battle({ params: { token } }: { params: { token: s
 	assert(problems, "No battle found");
 	const parsedProblems = problems?.problems.map(problem => problem.problem);
 	return (
-		<Smackdown token={token} spectateEligible={spectateEligible} problemsData={parsedProblems} timeLimit={arena.timeLimit} />
+		<Smackdown token= { token } spectateEligible = { spectateEligible } problemsData = { parsedProblems } timeLimit = { arena.timeLimit } />
 	)
 }

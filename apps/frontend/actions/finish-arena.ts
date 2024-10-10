@@ -1,6 +1,5 @@
 "use server";
-import db from "../../../packages/db/src";
-
+import db from "@/db"
 export default async function finishArena(token: string) {
 	await db.arena.update({
 		where: {

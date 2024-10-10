@@ -1,8 +1,7 @@
 import Lobby from "@/components/Lobby";
-import db from "../../../../../packages/db/src";
+import db from "@/db";
 import assert from "assert";
 export default async function Arena({ params: { token } }: { params: { token: string } }) {
-
 	const arenaDetails = await db.arena.findFirst({
 		where: {
 			token: token,

@@ -1,5 +1,5 @@
 import Spectate from "@/components/Spectate";
-import db from "../../../../../../packages/db/src";
+import db from "@/db";
 import assert from "assert";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/authConfig";
@@ -80,7 +80,7 @@ export default async function Spec({ params: { token } }: { params: { token: str
 
 	if (userHasResigned) {
 		return (
-			<Spectate usersDetails={arena?.users} />
+			<Spectate usersDetails= { arena?.users } />
 		);
 	}
 
@@ -110,6 +110,6 @@ export default async function Spec({ params: { token } }: { params: { token: str
 	}
 
 	return (
-		<Spectate usersDetails={arena?.users} />
+		<Spectate usersDetails= { arena?.users } />
 	);
 }

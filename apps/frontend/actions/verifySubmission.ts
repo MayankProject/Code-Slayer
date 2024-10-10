@@ -1,7 +1,7 @@
 "use server";
 import assert from "assert";
 import { getServerSession } from "next-auth";
-import db from "../../../packages/db/src";
+import db from "@/db";
 import { authOptions } from "@/app/authConfig";
 import RedisManager from "@/RedisManager";
 
