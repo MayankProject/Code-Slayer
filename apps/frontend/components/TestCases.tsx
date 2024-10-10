@@ -1,4 +1,3 @@
-import Pane from "@/components/Pane";
 import Tabs from "@/components/Tabs";
 import ExampleBody from "@/components/ExampleBody";
 import { allProblems, currentProblem } from "@/state";
@@ -12,7 +11,6 @@ export default function TestCases() {
 	const [problem, setProblem] = useState<Problem>(Problems[problemIndex]);
 
 	useEffect(() => {
-		console.log(Problems, problemIndex);
 		setProblem(Problems[problemIndex]);
 	}, [Problems, problemIndex]);
 

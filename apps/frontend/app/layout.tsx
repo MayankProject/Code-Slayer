@@ -1,23 +1,10 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import Providers from "./Providers";
 import "./globals.css";
 import Authenticate from "./Authenticate";
-import { Slide, toast, ToastContainer } from "react-toastify";
+import { Slide, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { Suspense } from "react";
 import Progressbar from "@/components/Progressbar";
-import BottomNavigation from "@/components/BottomNavigation";
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",

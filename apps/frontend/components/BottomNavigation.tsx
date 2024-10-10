@@ -1,15 +1,12 @@
-import { hideNavigationState, tokenState } from "@/state";
-import { WebSocketManager } from "@/WebsocketManager";
+import { hideNavigationState } from "@/state";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
-const ws = WebSocketManager.getInstance();
+import { useRecoilState } from "recoil";
 export default function BottomNavigation({ className }: { className?: string }) {
 	const router = useRouter();
 	const instanceId = useRef(Math.random()).current;
 	const [onHovered, setOnHovered] = useState<number>(0);
-	const token = useRecoilValue(tokenState);
 	const [hideNavigation, setHideNavigation] = useRecoilState(hideNavigationState);
 	const FloatingSpan = () => <motion.span
 		animate={{ scale: [1, 1.5, 1] }}

@@ -11,11 +11,20 @@ export default class RedisManager {
 		this.client = createClient({
 			url: process.env.REDIS_URL
 		});
-		this.client.connect()
 		this.publisher = createClient({
 			url: process.env.REDIS_URL
 		});
-		this.publisher.connect()
+		const connect = async () => {
+			try {
+				this.client.connect()
+				this.publisher.connect()
+				console.log("Redis Connected.")
+			} catch (e) {
+				console.log("Redis Client not connected, retrying.")
+				connect()
+			}
+		}
+		connect()
 	}
 	static getInstance() {
 		if (!this.instance) {

@@ -1,26 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import CodeMirror, { ChangeSpec, EditorView } from "@uiw/react-codemirror";
-import MonacoEditor from "@monaco-editor/react";
-import { javascript } from '@codemirror/lang-javascript';
-import { vscodeDark } from '@uiw/codemirror-theme-vscode';
-import Container from "./Container";
-import { WebSocketManager } from "@/WebsocketManager";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { allSpectatorsCode, loader, tokenState } from "@/state";
+import { useEffect } from "react";
+import { useSetRecoilState } from "recoil";
+import { loader } from "@/state";
 import SpectatorCode from "./SpectatorCode";
 import Tabs from "./Tabs";
-import { AnimatePresence, motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import BottomNavigation from "./BottomNavigation";
-const ws = WebSocketManager.getInstance();
 export default function Spectate({ usersDetails }: { usersDetails: any[] }) {
 	const setLoader = useSetRecoilState(loader);
-	const instanceId = useRef(Math.random()).current;
-	const [onHovered, setOnHovered] = useState<number>(0);
-	const token = useRecoilValue(tokenState);
-	const router = useRouter();
 	useEffect(() => {
 		setLoader({ percentage: undefined });
 	}, []);

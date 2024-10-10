@@ -22,9 +22,17 @@ export default class RedisManager {
 		return this.instance;
 	}
 	connectToRedis = async function(this: RedisManager) {
-		await this.client.connect()
-		await this.publisher.connect()
-		console.log("Redis Connected.")
+		const Connect = async () => {
+			this.client.connect()
+			this.publisher.connect()
+			console.log("Redis Connected.")
+		}
+		try {
+			Connect()
+		} catch (error) {
+			console.log("Redis Client not connected, retrying.")
+			this.connectToRedis()
+		}
 	}
 	publish(stream: string, message: string) {
 		this.publisher.publish(stream, message)

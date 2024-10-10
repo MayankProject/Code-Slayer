@@ -1,5 +1,4 @@
 "use client";
-import { Allotment } from "allotment";
 
 export default function Loading() {
 	return (

@@ -5,7 +5,7 @@
   "scripts": {
     "test": "vitest",
     "dev": "tsc -b && nodemon dist",
-    "build": "turbo build"
+    "build": "tsc -b"
   },
   "keywords": [],
   "author": "",

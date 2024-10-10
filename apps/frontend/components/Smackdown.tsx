@@ -38,7 +38,7 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
 	const [Problem, setProblem] = useState<Problem>(Problems[problemIndex]);
 	const setLoader = useSetRecoilState(loader);
 	const [_Console, setConsole] = useRecoilState(consoleVisible);
-	const [nProblems, setNProblems] = useState(problemsData.length);
+	const [nProblems] = useState(problemsData.length);
 	const [canSpectate, setCanSpectate] = useRecoilState(canSpectateState);
 	const router = useRouter();
 	const showConsole = () => {

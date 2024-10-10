@@ -1,5 +1,4 @@
 "use client";
-import BottomNavigation from "@/components/BottomNavigation";
 import { WebSocketManager } from "@/WebsocketManager";
 import { useEffect } from "react";
 const ws = WebSocketManager.getInstance();

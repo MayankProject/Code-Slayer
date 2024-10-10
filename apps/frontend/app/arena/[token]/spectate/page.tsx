@@ -4,7 +4,7 @@ import assert from "assert";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/authConfig";
 import { redirect } from "next/navigation";
-export default async function({ params: { token } }: { params: { token: string } }) {
+export default async function Spec({ params: { token } }: { params: { token: string } }) {
 	const session = await getServerSession(authOptions)
 	assert(session, "Unauthenticated")
 
@@ -80,7 +80,7 @@ export default async function({ params: { token } }: { params: { token: string }
 
 	if (userHasResigned) {
 		return (
-			<Spectate usersDetails= { arena?.users } />
+			<Spectate usersDetails={arena?.users} />
 		);
 	}
 
@@ -110,6 +110,6 @@ export default async function({ params: { token } }: { params: { token: string }
 	}
 
 	return (
-		<Spectate usersDetails= { arena?.users } />
+		<Spectate usersDetails={arena?.users} />
 	);
 }

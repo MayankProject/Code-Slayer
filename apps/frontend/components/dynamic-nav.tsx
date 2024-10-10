@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "./ui/button"
 import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { SessionContextValue } from "next-auth/react"
 import { signIn } from "next-auth/react"
 import { signOut } from "next-auth/react"

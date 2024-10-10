@@ -16,9 +16,9 @@ export default function Tabs({ TabHead, TabContent }: {
 
 	useEffect(() => {
 		setTabSelect(TabHead[0]?.key ?? "");
-	}, [problemIndex]);
+	}, [problemIndex, TabHead]);
 	const [tabSelect, setTabSelect] = useState<string>(TabHead[0]?.key ?? "");
-	const [instanceId, _] = useState<number>(Math.random())
+	const [instanceId] = useState<number>(Math.random())
 	const [TabID, setTabId] = useState<number>(0)
 	return (
 		<>

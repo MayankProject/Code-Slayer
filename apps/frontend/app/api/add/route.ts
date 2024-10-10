@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import db from "../../../../../packages/db/src/"
 import { readFileSync } from "fs";
-export async function GET(request: NextRequest) {
+export async function GET() {
 	let description = readFileSync("/home/sergio/Code/Code-Smack/apps/frontend/app/api/add/problems/twosum/description.md", "utf8")
 	let testBoilerCode = readFileSync("/home/sergio/Code/Code-Smack/apps/frontend/app/api/add/problems/twosum/testBoilerCode.txt", "utf8")
 	let boilerCode = readFileSync("/home/sergio/Code/Code-Smack/apps/frontend/app/api/add/problems/twosum/boiler.txt", "utf8")

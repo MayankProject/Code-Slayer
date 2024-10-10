@@ -1,10 +1,6 @@
-import { allUsersState, tokenState } from '@/state';
-import { WebSocketManager } from '@/WebsocketManager';
 import { useSession } from 'next-auth/react';
 import React, { useRef, useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
 
-const ws = WebSocketManager.getInstance();
 export class Player {
 	id: number;
 	position: { x: number; y: number };
@@ -48,7 +44,7 @@ export class Player {
 		return Math.sqrt((y - client_y) ** 2 + (x - client_x) ** 2);
 	}
 
-	update(token: string, canvas: HTMLCanvasElement, gravity: number, lossVelocity: number, maxVelocity: number) {
+	update(canvas: HTMLCanvasElement, gravity: number, lossVelocity: number, maxVelocity: number) {
 		this.position = {
 			x: this.velocity.x + this.position.x,
 			y: this.velocity.y + this.position.y,
@@ -76,9 +72,9 @@ export class Player {
 				throwSpeed = maxVelocity;
 				overspeed = true;
 			}
-			let angle = Math.atan2((this.grabbedPosition.y - this.position.y), (this.grabbedPosition.x - this.position.x));
-			let xSpeed = Math.cos(angle) * throwSpeed;
-			let ySpeed = Math.sin(angle) * throwSpeed;
+			const angle = Math.atan2((this.grabbedPosition.y - this.position.y), (this.grabbedPosition.x - this.position.x));
+			const xSpeed = Math.cos(angle) * throwSpeed;
+			const ySpeed = Math.sin(angle) * throwSpeed;
 			if (overspeed) {
 				this.velocity = { x: xSpeed, y: ySpeed };
 			} else {
@@ -89,7 +85,6 @@ export class Player {
 	}
 }
 const HangBall: React.FC = () => {
-	const token = useRecoilValue(tokenState)
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const session = useSession()
 	const parentDivRef = useRef<HTMLDivElement | null>(null);
@@ -124,8 +119,8 @@ const HangBall: React.FC = () => {
 
 		addEventListener('mousedown', (e) => {
 			if (!parentDivRef || !parentDivRef.current) return;
-			let position = { x: e.clientX - parentDivRef.current.getBoundingClientRect().x, y: e.clientY - parentDivRef.current.getBoundingClientRect().y };
-			let distanceFromPlayer = player.distanceFromPlayer(position.x, position.y);
+			const position = { x: e.clientX - parentDivRef.current.getBoundingClientRect().x, y: e.clientY - parentDivRef.current.getBoundingClientRect().y };
+			const distanceFromPlayer = player.distanceFromPlayer(position.x, position.y);
 			if (distanceFromPlayer < 200) {
 				parentDivRef.current.style.cursor = 'grabbing';
 				player.grabbed = true;
@@ -136,7 +131,7 @@ const HangBall: React.FC = () => {
 
 		addEventListener('mousemove', (e) => {
 			if (!parentDivRef || !parentDivRef.current) return;
-			let position = { x: e.clientX - parentDivRef.current.getBoundingClientRect().x, y: e.clientY - parentDivRef.current.getBoundingClientRect().y };
+			const position = { x: e.clientX - parentDivRef.current.getBoundingClientRect().x, y: e.clientY - parentDivRef.current.getBoundingClientRect().y };
 			if (player.grabbed) {
 				player.grabbedPosition = position;
 				player.grabbedDistance = player.distanceFromPlayer(position.x, position.y);
@@ -154,7 +149,7 @@ const HangBall: React.FC = () => {
 		function engine() {
 			if (!canvas || !c) return;
 			player.draw(c)
-			player.update(token, canvas, gravity, lossVelocity, maxVelocity)
+			player.update(canvas, gravity, lossVelocity, maxVelocity)
 		}
 
 		function main() {
@@ -200,7 +195,6 @@ const HangBall: React.FC = () => {
 						<h1>
 							I know your attention span is shit mate, isn't it?
 						</h1>
-
 					</div>
 				</div>
 			}

@@ -1,24 +1,8 @@
-import { allProblems, currentProblem, testResult } from "@/state";
-import Error from "./Error";
+import { allProblems, currentProblem } from "@/state";
 import ExampleBody from "./ExampleBody";
 import TestcasePassed from "./TestcasePassed";
-import Tabs from "./Tabs";
 import { useRecoilValue } from "recoil";
 export default function Console() {
-	const testCases = [
-		{
-			id: 'Case 1',
-			stdout: "[0, 1]"
-		},
-		{
-			id: 'Case 2',
-			stdout: "[1, 3]"
-		},
-		{
-			id: 'Case 3',
-			stdout: "[1, 2]"
-		}
-	];
 	const currentProblemIndex = useRecoilValue(currentProblem);
 	const Problems = useRecoilValue(allProblems);
 	const Problem = Problems[currentProblemIndex];
@@ -26,12 +10,6 @@ export default function Console() {
 	const PassedTestCases = Problem?.PassedTestCases;
 	const FailedTestCases = Problem?.FailedTestCases;
 	const allTestCasesDetails: { [key: string]: { passed: boolean } } = {};
-	const sortedAllTestCaseDetails = Object.fromEntries(
-		Object.keys(allTestCasesDetails)
-			.map(Number) // Convert keys from string to number
-			.sort((a, b) => a - b) // Sort the keys numerically
-			.map(key => [key, allTestCasesDetails[key]]) // Map sorted keys back to [key, value] pairs
-	);
 	PassedTestCases.forEach((testCase) => {
 		allTestCasesDetails[testCase.toString()] = {
 			passed: true

@@ -3,13 +3,11 @@ import { javascript } from '@codemirror/lang-javascript';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { useEffect, useState } from "react";
 import Pane from "./Pane";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { WebSocketManager } from "@/WebsocketManager";
 const ws = WebSocketManager.getInstance();
-import submit from "@/actions/submit";
-import { allProblems, consoleVisible, currentProblem, testResult } from "@/state";
+import { allProblems, currentProblem } from "@/state";
 import { useSession } from "next-auth/react";
-import verifySubmission from "@/actions/verifySubmission";
 
 export default function Playground({ token }: { token: string }) {
 	const session = useSession();
@@ -23,7 +21,7 @@ export default function Playground({ token }: { token: string }) {
 		setCode(boilerplate);
 	}, [boilerplate]);
 
-	function handleChangeMirror(value: string, viewUpdate: any) {
+	function handleChangeMirror(value: string) {
 		ws.sendMessage({
 			method: "PUBLISH",
 			param: {
@@ -54,7 +52,7 @@ export default function Playground({ token }: { token: string }) {
 				<CodeMirror
 					value={code}
 					onChange={(value, viewUpdate) => {
-						handleChangeMirror(value, viewUpdate);
+						handleChangeMirror(value);
 					}
 					}
 					className="bg-red-200 text-sm"

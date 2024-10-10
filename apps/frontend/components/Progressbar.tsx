@@ -4,7 +4,6 @@ import { loader } from "../state";
 
 export default function Progressbar() {
 	const LoaderData = useRecoilValue(loader)
-	console.log(LoaderData.percentage);
 	return (
 		<div className="progress-bar-container h-1 w-full absolute top-0 left-0 flex justify-center items-center" >
 

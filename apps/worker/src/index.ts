@@ -8,7 +8,6 @@ import { payload } from "@repo/types"
 
 const worker: Worker = Worker.getInstance()
 async function main() {
-	console.log("here", process.env.REDIS_URL)
 	const redis: RedisManager = RedisManager.getInstance()
 	while (1) {
 		const res = await redis.getFromQueue()

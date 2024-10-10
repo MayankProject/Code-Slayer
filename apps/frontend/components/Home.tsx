@@ -1,10 +1,9 @@
 "use client";
 import createArena from "@/actions/create-arena";
-import Container from "./Container";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { loader } from "@/state";
 
 export default function Home() {

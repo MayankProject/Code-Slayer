@@ -1,6 +1,5 @@
 "use client";
 import { useSession } from "next-auth/react";
-import Container from "./Container";
 import JoinArena from "@/actions/join-arena";
 import assert from "assert";
 import { useEffect, useState } from "react";
@@ -12,7 +11,6 @@ import HangBall from "./Hang-ball";
 import { allUsersState, loader, tokenState } from "@/state";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import leaveArena from "@/actions/leave-arena";
-import BottomNavigation from "./BottomNavigation";
 export interface User {
 	name: string | null,
 	id: number,
@@ -23,7 +21,7 @@ const ws = WebSocketManager.getInstance();
 export default function Lobby({ data, status, token }: { data: User[], token: string, status: "Lobby" | "Battle" }) {
 	const setTokenState = useSetRecoilState(tokenState);
 	const [Users, setUser] = useRecoilState(allUsersState);
-	const [isJoined, setIsJoined] = useState<Boolean | undefined>(undefined);
+	const [isJoined, setIsJoined] = useState<boolean | undefined>(undefined);
 	const session = useSession();
 	const allUsersId = data.map((user) => user.id);
 	const router = useRouter();
@@ -31,15 +29,6 @@ export default function Lobby({ data, status, token }: { data: User[], token: st
 
 	const setLoader = useSetRecoilState(loader);
 
-	const userLeaveCallback = (message: any) => {
-		if (message.userId === session?.data?.user.id) {
-			return;
-		}
-		const UpdatedUser = Users.filter((user) => user.id !== message.userId)
-
-		setUser(UpdatedUser)
-		toast.success(`${message.name} Left the arena!`);
-	}
 	const userUpdateCallback = (message: any) => {
 		if (message.userId === session?.data?.user.id) {
 			return;
@@ -99,7 +88,7 @@ export default function Lobby({ data, status, token }: { data: User[], token: st
 		success: "Started! Redirecting...",
 		error: "Oopsie Daisy! Something went wrong...",
 	});
-	const _JoinArena = () => toast.promise(new Promise(async (resolve, reject) => {
+	const _JoinArena = () => toast.promise(new Promise(async (resolve) => {
 		assert(session?.data, "Session not found");
 		const userId = session?.data?.user.id;
 		const name = session?.data?.user.name;
@@ -118,7 +107,7 @@ export default function Lobby({ data, status, token }: { data: User[], token: st
 		error: "Oopsie Daisy! Something went wrong...",
 	});
 
-	const _LeaveArena = () => toast.promise(new Promise(async (resolve, reject) => {
+	const _LeaveArena = () => toast.promise(new Promise(async (resolve) => {
 		assert(session?.data, "Session not found");
 		const userId = session?.data?.user.id;
 		const status = await leaveArena(token);
@@ -145,7 +134,7 @@ export default function Lobby({ data, status, token }: { data: User[], token: st
 						{
 							Users.map((user) => {
 								return (
-									<div className="border flex justify-between hover:scale-x-[1.01] transition-all rounded-lg px-6 py-3 bg-[#111111] border-gray-500/20" >
+									<div key={user.id} className="border flex justify-between hover:scale-x-[1.01] transition-all rounded-lg px-6 py-3 bg-[#111111] border-gray-500/20" >
 										<div className="flex gap-2" >
 											{user.name}
 											{session?.data?.user.id === user.id && <div className="text-gray-400" > (You) </div>}
