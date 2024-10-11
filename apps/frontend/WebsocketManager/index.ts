@@ -1,3 +1,5 @@
+import { WEBSOCKET_URL } from "@/config"
+
 type payload = {
 	method: "SUBSCRIBE" | "UNSUBSCRIBE",
 	param: {
@@ -19,7 +21,7 @@ export class WebSocketManager {
 	private solutionCallbacks: Map<string, ((data: any) => void)> = new Map()
 	private constructor() {
 		console.log("creating new websocket")
-		this.socket = new WebSocket("ws://localhost:3002")
+		this.socket = new WebSocket(WEBSOCKET_URL)
 		this.init()
 	}
 	static getInstance() {

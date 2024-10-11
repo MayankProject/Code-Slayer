@@ -23,8 +23,8 @@ export default class RedisManager {
 	}
 	connectToRedis = async function(this: RedisManager) {
 		const Connect = async () => {
-			this.client.connect()
-			this.publisher.connect()
+			await this.client.connect()
+			await this.publisher.connect()
 			console.log("Redis Connected.")
 		}
 		try {
