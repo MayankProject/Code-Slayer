@@ -1,1 +1,1 @@
-export const WEBSOCKET_URL = "https://websocket-code-smack-production.up.railway.app/"
+export const WEBSOCKET_URL = "wss://websocket-code-smack-production.up.railway.app/"
