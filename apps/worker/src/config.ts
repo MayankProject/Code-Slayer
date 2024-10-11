@@ -1,1 +1,1 @@
-export const JUDGE0_URL = "http://localhost:2358"
+export const JUDGE0_URL = "https://judge0-ce.p.rapidapi.com"

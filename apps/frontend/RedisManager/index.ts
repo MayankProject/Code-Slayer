@@ -7,6 +7,7 @@ export default class RedisManager {
 	private publisher: RedisClientType;
 	private static instance: RedisManager;
 	private constructor() {
+		console.log("Creating Redis Client", process.env.REDIS_URL)
 		// publisher : Pushes data to queue
 		this.client = createClient({
 			url: process.env.REDIS_URL

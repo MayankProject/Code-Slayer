@@ -185,13 +185,13 @@ export default function Lobby({ data, status, token }: { data: User[], token: st
 				</div>
 				< div className="h-full w-3/4 flex flex-col gap-3" >
 					<div className="flex backdrop-blur-xl border text-sm rounded-lg px-6 text-gray-400 py-3 border-gray-500/20" >
-						<div className="flex gap-2 items-center">
+						<div className="flex gap-2 items-center" >
 							{status === "Lobby" ?
 								<>
-									<div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+									<div className="w-2 h-2 bg-orange-500 rounded-full" > </div>
 									Waiting for players
 								</> : <>
-									<div className="w-2 h-2 bg-[#2CBB5D] rounded-full"></div>
+									< div className="w-2 h-2 bg-[#2CBB5D] rounded-full" > </div>
 									Battling!
 								</>}
 						</div>

@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -b",
     "dev": "tsc -b && nodemon dist",
-    "start": "node dist"
+    "start": "node dist",
+    "deploy": "railway up"
   },
   "keywords": [],
   "author": "",

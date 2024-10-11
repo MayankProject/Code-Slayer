@@ -182,6 +182,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@prisma/client':
+        specifier: 5.19.1
+        version: 5.19.1(prisma@5.19.1)
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db

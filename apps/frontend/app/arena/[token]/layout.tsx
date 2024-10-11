@@ -4,6 +4,7 @@ import { useEffect } from "react";
 const ws = WebSocketManager.getInstance();
 export default function Layout({ children, params: { token } }: { children: React.ReactNode, params: { token: string } }) {
 	useEffect(() => {
+		console.log("Subscribing to", token);
 		ws.sendMessage({
 			method: "SUBSCRIBE",
 			param: {
@@ -22,7 +23,7 @@ export default function Layout({ children, params: { token } }: { children: Reac
 
 	return (
 		<>
-			{children}
+		{ children }
 		</>
 	);
 }

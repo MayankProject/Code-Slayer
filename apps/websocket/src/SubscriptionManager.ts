@@ -13,6 +13,7 @@ export class SubscriptionManager {
 		return this.instance
 	}
 	Subscribe(ws: WebSocket, stream: string) {
+		console.log("Subscribing to", stream)
 		const streamSub = this.Subscriptions.get(stream) || []
 		const userSub = this.reverseSubscription.get(ws) || []
 		if (!(streamSub.length)) {
@@ -37,6 +38,7 @@ export class SubscriptionManager {
 		this.reverseSubscription.delete(ws)
 	}
 	getSubscrbedData(message: string, channel: string) {
+		console.log(message)
 		const Users = this.Subscriptions.get(channel) || []
 		for (let i = 0; i < Users.length; i++) {
 			const User = Users[i]

@@ -1,5 +1,6 @@
-import { WEBSOCKET_URL } from "@/config"
-
+import dotenv from "dotenv"
+dotenv.config()
+const WEBSOCKET_URL = process.env.WEBSOCKET_URL || "ws://localhost:3002"
 type payload = {
 	method: "SUBSCRIBE" | "UNSUBSCRIBE",
 	param: {

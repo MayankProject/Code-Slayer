@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "5.19.1",
     "@repo/db": "workspace:*",
     "@types/dotenv": "^8.2.0",
     "axios": "^1.7.7",

@@ -16,6 +16,7 @@ import submit from "@/actions/submit";
 import verifySubmission from "@/actions/verifySubmission";
 import { toast } from "react-toastify"
 import resign from "@/actions/resign";
+import Time from "./Time";
 
 export interface Problem {
 	id: number;
@@ -33,7 +34,6 @@ export interface Problem {
 const ws = WebSocketManager.getInstance();
 export default function Smackdown({ token, problemsData, spectateEligible, timeLimit }: { token: string, problemsData: Problem[], spectateEligible: boolean, timeLimit: number }) {
 	const [Problems, setProblems] = useRecoilState(allProblems);
-	const [time, setTime] = useRecoilState(timeState);
 	const [problemIndex, setProblemIndex] = useRecoilState(currentProblem);
 	const [Problem, setProblem] = useState<Problem>(Problems[problemIndex]);
 	const setLoader = useSetRecoilState(loader);
@@ -61,9 +61,6 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
 		}
 		setProblemIndex(problemIndex - 1);
 	};
-	const timeUpdateCallback = (time: { time: number }) => {
-		setTime(time.time);
-	};
 	const arenaFinishedCallback = (() => {
 		finishArena(token);
 		const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
@@ -72,25 +69,19 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
 	})
 	useEffect(() => {
 		setLoader({ percentage: undefined });
-
-		ws.attachCallback("TIME_CONTROL", timeUpdateCallback);
 		ws.attachCallback("FINISH_ARENA", arenaFinishedCallback);
-
-		setTime(timeLimit);
 		setProblemIndex(0);
 		setCanSpectate(spectateEligible);
-
 		setProblems(() => {
 			return problemsData.map((problem) => {
 				return { ...problem, testResult: {}, PassedTestCases: [], FailedTestCases: [] };
 			});
 		});
-
 		return () => {
-			ws.detachCallback("TIME_CONTROL", timeUpdateCallback);
 			ws.detachCallback("FINISH_ARENA", arenaFinishedCallback);
 		}
 	}, []);
+
 	const _resign = () => toast.promise(new Promise(async (resolve, reject) => {
 		const res = await resign(token);
 		if (res) {
@@ -103,16 +94,6 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
 		success: "You have resigned! LMFAO, LOOSER!",
 		error: "standing found or you have already resigned"
 	});
-	function formatTime(seconds: number) {
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-
-		// Add leading zeros to minutes and seconds if needed
-		const formattedMinutes = String(minutes).padStart(2, '0');
-		const formattedSeconds = String(remainingSeconds).padStart(2, '0');
-
-		return `${formattedMinutes}:${formattedSeconds}`;
-	}
 	const submit_fn = () => toast.promise(new Promise(async (resolve, reject) => {
 		const id = Problem?.id;
 		const code = Problem?.boilerplate;
@@ -182,13 +163,7 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
 				<Allotment.Pane className="px-[4px]" >
 					<div className="flex justify-between px-1 items-center" >
 						<div className="flex gap-2" >
-							<div className={`relative flex items-center gap-3 border hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`}>
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" >
-									<path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-								</svg>
-
-								< h1 className="text-2xl font-bold text-white" > {formatTime(time)} </h1>
-							</div>
+							<Time timeLimit={timeLimit} />
 							< div className={`relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`
 							}
 								onClick={() => {

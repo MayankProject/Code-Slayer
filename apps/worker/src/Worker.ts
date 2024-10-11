@@ -2,10 +2,10 @@ import assert from "assert";
 import axios from "axios";
 import { JUDGE0_URL } from "./config";
 import { payload } from "@repo/types";
-//@ts-ignore
-import db from "../../../packages/db/src";
+import { PrismaClient } from "@prisma/client";
 import RedisManager from "./RedisManager";
 const redis = RedisManager.getInstance();
+const db = new PrismaClient();
 export default class Worker {
 	private static instance: Worker;
 	private ArenaTimeMap: Map<string, number> = new Map();
@@ -30,12 +30,15 @@ export default class Worker {
 		assert(problem?.TestCases, "TestCases not found");
 
 		const finalSourceCode = this.injectTestCase(payload.source_code, problem.TestCases, problem.testBiolerCode)
-		console.log(finalSourceCode);
 		const { data: { token } }: {
 			data: {
 				token: string;
 			}
-		} = await axios.post(`${JUDGE0_URL}/submissions`, { ...payload, source_code: finalSourceCode })
+		} = await axios.post(`${JUDGE0_URL}/submissions`, { ...payload, source_code: finalSourceCode }, {
+			headers: {
+				"x-rapidapi-key": process.env.JUDGE0_API_KEY,
+			}
+		})
 		const data = await this.getResult(token);
 		console.log(data.stdout);
 		console.log(data.stdout.trim().split("\\n").slice(-2));
@@ -66,7 +69,6 @@ export default class Worker {
 			})
 			data.submission_id = submissionId.id;
 		}
-		console.log("dsad");
 		return { ...data, PassedTestCases, FailedTestCases };
 
 	}
@@ -116,7 +118,11 @@ export default class Worker {
 	}
 
 	async getResult(token: string, interval?: number): Promise<any> {
-		const { data } = await axios.get(`${JUDGE0_URL}/submissions/${token}`)
+		const { data } = await axios.get(`${JUDGE0_URL}/submissions/${token}`, {
+			headers: {
+				"x-rapidapi-key": process.env.JUDGE0_API_KEY,
+			}
+		})
 		if (data.status.description === "In Queue" || data.status.description === "Processing") {
 			await new Promise(resolve => setTimeout(resolve, interval || 1000));
 			return await this.getResult(token, interval ? interval * 2 : 2000);
@@ -137,7 +143,7 @@ export default class Worker {
 
 		assert(arena, "Arena not found");
 		this.ArenaTimeMap.set(token, arena.timeLimit);
-		this.reduceTime({ token, interval: 1 });
+		this.reduceTime({ token, interval: 10 });
 	}
 	async reduceTime({ token, interval }: { token: string, interval: number }) {
 		const timeLimit = this.ArenaTimeMap.get(token);
