@@ -1,11 +1,14 @@
 import assert from "assert";
 import axios from "axios";
-import { JUDGE0_URL } from "./config";
 import { payload } from "@repo/types";
 import { PrismaClient } from "@prisma/client";
 import RedisManager from "./RedisManager";
+import dotenv from "dotenv";
+dotenv.config();
 const redis = RedisManager.getInstance();
 const db = new PrismaClient();
+const { JUDGE0_URL, JUDGE0_API_KEY } = process.env;
+
 export default class Worker {
 	private static instance: Worker;
 	private ArenaTimeMap: Map<string, number> = new Map();
@@ -36,7 +39,7 @@ export default class Worker {
 			}
 		} = await axios.post(`${JUDGE0_URL}/submissions`, { ...payload, source_code: finalSourceCode }, {
 			headers: {
-				"x-rapidapi-key": process.env.JUDGE0_API_KEY,
+				"x-rapidapi-key": JUDGE0_API_KEY,
 			}
 		})
 		const data = await this.getResult(token);
@@ -120,7 +123,7 @@ export default class Worker {
 	async getResult(token: string, interval?: number): Promise<any> {
 		const { data } = await axios.get(`${JUDGE0_URL}/submissions/${token}`, {
 			headers: {
-				"x-rapidapi-key": process.env.JUDGE0_API_KEY,
+				"x-rapidapi-key": JUDGE0_API_KEY,
 			}
 		})
 		if (data.status.description === "In Queue" || data.status.description === "Processing") {
