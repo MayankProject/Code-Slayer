@@ -5,7 +5,6 @@ import RedisManager from "./RedisManager";
 import Worker from "./Worker";
 import { payload } from "@repo/types"
 
-
 const worker: Worker = Worker.getInstance()
 async function main() {
 	const redis: RedisManager = RedisManager.getInstance()
