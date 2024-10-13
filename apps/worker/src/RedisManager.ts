@@ -1,4 +1,3 @@
-import { payload } from "@repo/types";
 import { createClient, RedisClientType } from "redis"
 import "dotenv/config";
 

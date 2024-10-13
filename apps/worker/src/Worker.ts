@@ -1,13 +1,17 @@
 import assert from "assert";
-import axios from "axios";
-import { payload } from "@repo/types";
-import { PrismaClient } from "@prisma/client";
+import axios, { AxiosResponse } from "axios";
 import RedisManager from "./RedisManager";
 import dotenv from "dotenv";
 dotenv.config();
+
+type payload = {
+	arena_token: string;
+	problem_id: string;
+	source_code: string;
+	language_id: number;
+};
 const redis = RedisManager.getInstance();
-const db = new PrismaClient();
-const { JUDGE0_URL, JUDGE0_API_KEY } = process.env;
+const { JUDGE0_URL, JUDGE0_API_KEY, BACKEND_URL, WORKER_SECRET_KEY } = process.env;
 
 export default class Worker {
 	private static instance: Worker;
@@ -20,59 +24,53 @@ export default class Worker {
 	}
 
 	async Submit(payload: payload) {
-		const problem = await db.problem.findFirst({
-			where: {
+		try {
+			const { data: problem }: AxiosResponse<{ TestCases: any, testBoilerCode: any }> = await axios.post<{ TestCases: any, testBoilerCode: any }>(`${BACKEND_URL}/api/get-testcases`, {
 				id: parseInt(payload.problem_id),
-			},
-			select: {
-				TestCases: true,
-				testBiolerCode: true,
-			}
-		})
-		assert(problem, "Problem not found");
-		assert(problem?.TestCases, "TestCases not found");
-
-		const finalSourceCode = this.injectTestCase(payload.source_code, problem.TestCases, problem.testBiolerCode)
-		const { data: { token } }: {
-			data: {
-				token: string;
-			}
-		} = await axios.post(`${JUDGE0_URL}/submissions`, { ...payload, source_code: finalSourceCode }, {
-			headers: {
-				"x-rapidapi-key": JUDGE0_API_KEY,
-			}
-		})
-		const data = await this.getResult(token);
-		console.log(data.stdout);
-		console.log(data.stdout.trim().split("\\n").slice(-2));
-		const PassedAndFailedTestCases = data.stdout.trim().split("\n").slice(-2).map((x: string) => JSON.parse(x))
-		console.log(PassedAndFailedTestCases);
-		const PassedTestCases = PassedAndFailedTestCases[0]
-		const FailedTestCases = PassedAndFailedTestCases[1]
-		if (FailedTestCases.length === 0) {
-			const arenaId = await db.arena.findFirst({
-				where: {
-					token: payload.arena_token,
-				},
-				select: {
-					id: true,
-				}
+				workerSecretKey: WORKER_SECRET_KEY,
 			})
-			assert(arenaId, "Arena not found");
-			const submissionId = await db.submission.create({
+			const finalSourceCode = this.injectTestCase(payload.source_code, problem.TestCases, problem.testBoilerCode)
+			const { data: { token } }: {
 				data: {
-					code: payload.source_code,
-					language: "javascript",
-					time: parseFloat(data.time),
-					memory: data.memory,
-					status: "Accepted",
-					problemId: parseInt(payload.problem_id),
-					arenaId: arenaId.id,
+					token: string;
+				}
+			} = await axios.post(`${JUDGE0_URL}/submissions`, { ...payload, source_code: finalSourceCode }, {
+				headers: {
+					"x-rapidapi-key": JUDGE0_API_KEY,
 				}
 			})
-			data.submission_id = submissionId.id;
+			const data = await this.getResult(token);
+			const PassedAndFailedTestCases = data.stdout.trim().split("\n").slice(-2).map((x: string) => JSON.parse(x))
+			const PassedTestCases = PassedAndFailedTestCases[0]
+			const FailedTestCases = PassedAndFailedTestCases[1]
+			if (FailedTestCases.length === 0) {
+				try {
+					const submission_res: AxiosResponse<{ id: string }> = await axios.post<{ id: string }>(`${BACKEND_URL}/api/accept-submission`, {
+						token: payload.arena_token,
+						code: payload.source_code,
+						language: "javascript",
+						time: parseFloat(data.time),
+						memory: data.memory,
+						status: "Accepted",
+						problemId: parseInt(payload.problem_id),
+						workerSecretKey: WORKER_SECRET_KEY,
+					})
+					if (submission_res.status === 200) {
+						data.submission_id = submission_res.data.id;
+					}
+					else {
+						throw new Error("Could not submit to backend");
+					}
+				}
+				catch (err) {
+					console.log(err);
+				}
+			}
+			return { ...data, PassedTestCases, FailedTestCases };
 		}
-		return { ...data, PassedTestCases, FailedTestCases };
+		catch (err) {
+			console.log(err);
+		}
 
 	}
 
@@ -135,15 +133,10 @@ export default class Worker {
 		}
 	}
 	async timeControl(token: string) {
-		const arena = await db.arena.findFirst({
-			where: {
-				token: token,
-			},
-			select: {
-				timeLimit: true,
-			}
+		const { data: arena }: AxiosResponse<{ timeLimit: any }> = await axios.post<{ timeLimit: any }>(`${BACKEND_URL}/api/get-timelimit`, {
+			token,
+			workerSecretKey: WORKER_SECRET_KEY,
 		})
-
 		assert(arena, "Arena not found");
 		this.ArenaTimeMap.set(token, arena.timeLimit);
 		this.reduceTime({ token, interval: 10 });
@@ -156,13 +149,10 @@ export default class Worker {
 			redis.publish(token, { id: token, e: "FINISH_ARENA" })
 			return;
 		}
-		await db.arena.update({
-			where: {
-				token: token,
-			},
-			data: {
-				timeLimit: timeLimit - interval - 1
-			}
+		axios.post(`${BACKEND_URL}/api/update-timelimit`, {
+			token,
+			workerSecretKey: WORKER_SECRET_KEY,
+			timeLimit: timeLimit - interval - 1
 		})
 		redis.publish(token, { e: "TIME_CONTROL", time: timeLimit - interval })
 		setTimeout(() => this.reduceTime({ token, interval }), interval * 1000);

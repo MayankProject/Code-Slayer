@@ -6,6 +6,9 @@ import Smackdown from "@/components/Smackdown";
 import { redirect } from "next/navigation";
 export default async function Battle({ params: { token } }: { params: { token: string } }) {
 	const session = await getServerSession(authOptions)
+	if (!session) {
+		return redirect(`/arena/${token}`);
+	}
 	assert(session, "Unauthenticated");
 	const userId = session.user.id;
 	const arena = await db.arena.findFirst({

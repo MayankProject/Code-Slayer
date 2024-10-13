@@ -9,6 +9,7 @@ const worker: Worker = Worker.getInstance()
 async function main() {
 	const redis: RedisManager = RedisManager.getInstance()
 	while (1) {
+		console.log("waiting for new message")
 		const res = await redis.getFromQueue()
 		const { key, element }: { key: "submission", element: payload & { id: string } } | { key: "time_control", element: { token: string } } = { key: res.key, element: JSON.parse(res.element) }
 		try {

@@ -5,7 +5,9 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "build:worker": "cd apps/worker && pnpm build && cd ../..",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "start": "turbo start"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",

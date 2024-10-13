@@ -185,9 +185,6 @@ importers:
       '@prisma/client':
         specifier: 5.19.1
         version: 5.19.1(prisma@5.19.1)
-      '@repo/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@types/dotenv':
         specifier: ^8.2.0
         version: 8.2.0

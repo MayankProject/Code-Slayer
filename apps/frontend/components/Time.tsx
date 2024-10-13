@@ -21,6 +21,7 @@ export default function Time({ timeLimit }: { timeLimit: number }) {
 		return `${formattedMinutes}:${formattedSeconds}`;
 	}
 	useEffect(() => {
+		setTime(timeLimit)
 		setInterval(() => {
 			setTime(time => time - 1);
 		}, 1000);
@@ -30,13 +31,14 @@ export default function Time({ timeLimit }: { timeLimit: number }) {
 		}
 	}, []);
 	return (
-		<div className={`relative flex items-center gap-3 border hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`}>
-			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" >
-				<path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+		<div className= {`relative flex items-center gap-3 border hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 my-2 px-4 py-[4px] rounded-lg  text-gray-400`
+}>
+	<svg xmlns="http://www.w3.org/2000/svg" fill = "none" viewBox = "0 0 24 24" strokeWidth = { 1.5} stroke = "currentColor" className = "size-6" >
+		<path strokeLinecap="round" strokeLinejoin = "round" d = "M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
 			</svg>
 
-			< h1 className="text-2xl font-bold text-white" > {formatTime(time)} </h1>
-		</div>
+			< h1 className = "text-2xl font-bold text-white" > { formatTime(time) } </h1>
+				</div>
 	)
-		;
+;
 }

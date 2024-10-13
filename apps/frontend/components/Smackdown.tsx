@@ -114,7 +114,6 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
 						return <div className="flex gap-2 items-center" >
 							<h1 onClick={
 								() => {
-
 									const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
 									setLoader({ percentage: randomNumber });
 									router.push(`/arena/${token}/spectate`);

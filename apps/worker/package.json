@@ -5,7 +5,8 @@
   "scripts": {
     "test": "vitest",
     "dev": "tsc -b && nodemon dist",
-    "build": "cd ../../packages/db && npx prisma generate && cd ../../apps/worker && tsc -b"
+    "build": "tsc -b",
+    "start" : "node dist"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +14,6 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "5.19.1",
-    "@repo/db": "workspace:*",
     "@types/dotenv": "^8.2.0",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
