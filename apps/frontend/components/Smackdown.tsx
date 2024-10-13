@@ -125,28 +125,44 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
 					setCanSpectate(true);
 				}
 			}
-			const restStdout = message.stdout.trim().split("\n").slice(0, -2).join("\n");
-			const PassedAndFailedTestCases = message.stdout.trim().split("\n").slice(-2).map((x: string) => JSON.parse(x))
-			const PassedTestCases = PassedAndFailedTestCases[0]
-			const FailedTestCases = PassedAndFailedTestCases[1]
-
-			if (FailedTestCases.length === 0) {
-				resolve(true);
+			if (message.stdout && !message.stderr) {
+				// removed the last two lines of stdout because it's the test result
+				const restStdout = message.stdout.trim().split("\n").slice(0, -2).join("\n");
+				const PassedAndFailedTestCases = message.stdout.trim().split("\n").slice(-2).map((x: string) => JSON.parse(x))
+				const PassedTestCases = PassedAndFailedTestCases[0]
+				const FailedTestCases = PassedAndFailedTestCases[1]
+				if (FailedTestCases.length === 0) {
+					resolve(true);
+				}
+				else {
+					reject(false);
+				}
+				setProblems((prev) => {
+					return prev.map((problem) => {
+						if (problem.id === id) {
+							problem.PassedTestCases = PassedTestCases;
+							problem.FailedTestCases = FailedTestCases;
+							problem.testResult = { ...message, stdout: restStdout, status: { id: FailedTestCases.length === 0 ? 3 : false } };
+						}
+						return problem;
+					})
+				});
+				setConsole(true);
 			}
-			else {
+			else if (message.stderr) {
 				reject(false);
+				setProblems((prev) => {
+					return prev.map((problem) => {
+						if (problem.id === id) {
+							problem.PassedTestCases = [];
+							problem.FailedTestCases = new Array().fill(0).map((_, i) => i);
+							problem.testResult = { ...message, stdout: null, status: { id: false } };
+						}
+						return problem;
+					})
+				});
+				setConsole(true);
 			}
-			setProblems((prev) => {
-				return prev.map((problem) => {
-					if (problem.id === id) {
-						problem.PassedTestCases = PassedTestCases;
-						problem.FailedTestCases = FailedTestCases;
-						problem.testResult = { ...message, stdout: restStdout, status: { id: FailedTestCases.length === 0 ? 3 : false } };
-					}
-					return problem;
-				})
-			});
-			setConsole(true);
 		});
 	}), {
 		pending: "Submitting...",

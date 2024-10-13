@@ -30,6 +30,7 @@ export default class Worker {
 				workerSecretKey: WORKER_SECRET_KEY,
 			})
 			const finalSourceCode = this.injectTestCase(payload.source_code, problem.TestCases, problem.testBoilerCode)
+			console.log(finalSourceCode)
 			const { data: { token } }: {
 				data: {
 					token: string;
@@ -40,6 +41,10 @@ export default class Worker {
 				}
 			})
 			const data = await this.getResult(token);
+			console.log(data.stdout, data)
+			if (data.stderr) {
+				return { ...data };
+			}
 			const PassedAndFailedTestCases = data.stdout.trim().split("\n").slice(-2).map((x: string) => JSON.parse(x))
 			const PassedTestCases = PassedAndFailedTestCases[0]
 			const FailedTestCases = PassedAndFailedTestCases[1]
@@ -89,15 +94,18 @@ export default class Worker {
 			}
 			_testBoilerCode = _testBoilerCode.replace("#OUTPUT#", testcase.output).replace("#i#", String(i + 1));
 			_testBoilerCode = `
-			try {
+				const wrong = (message) => {
+				console.log("status: failed")
+					console.log(message);
+					failedTestCases.push(${i + 1});
+					console.log("\\n\\n--Testcase ${i + 1} Output End")
+				}
 				console.log("--Testcase ${i + 1} Output \\n\\n")
 				${_testBoilerCode}
+				console.log("status: passed")
+				console.log(\`Expected : \${output} \\nYour output : \${result}\`);
 				passedTestCases.push(${i + 1});
 				console.log("\\n\\n--Testcase ${i + 1} Output End")
-			} catch (error) {
-				failedTestCases.push(${i + 1});
-				console.log("\\n\\n--Testcase ${i + 1} Output End")
-			}
 			`;
 
 			const wrapInsideFunction = (code: string) => {
