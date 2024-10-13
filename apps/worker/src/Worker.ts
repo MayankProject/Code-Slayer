@@ -142,19 +142,24 @@ export default class Worker {
 		this.reduceTime({ token, interval: 10 });
 	}
 	async reduceTime({ token, interval }: { token: string, interval: number }) {
-		const timeLimit = this.ArenaTimeMap.get(token);
-		assert(timeLimit, "TimeLimit not found");
-		this.ArenaTimeMap.set(token, timeLimit - interval);
-		if (timeLimit - interval <= 0) {
-			redis.publish(token, { id: token, e: "FINISH_ARENA" })
-			return;
+		try {
+			const timeLimit = this.ArenaTimeMap.get(token);
+			assert(timeLimit, "TimeLimit not found");
+			this.ArenaTimeMap.set(token, timeLimit - interval);
+			if (timeLimit - interval <= 0) {
+				redis.publish(token, { id: token, e: "FINISH_ARENA" })
+				return;
+			}
+			axios.post(`${BACKEND_URL}/api/update-timelimit`, {
+				token,
+				workerSecretKey: WORKER_SECRET_KEY,
+				timeLimit: timeLimit - interval - 1
+			})
+			redis.publish(token, { e: "TIME_CONTROL", time: timeLimit - interval })
+			setTimeout(() => this.reduceTime({ token, interval }), interval * 1000);
 		}
-		axios.post(`${BACKEND_URL}/api/update-timelimit`, {
-			token,
-			workerSecretKey: WORKER_SECRET_KEY,
-			timeLimit: timeLimit - interval - 1
-		})
-		redis.publish(token, { e: "TIME_CONTROL", time: timeLimit - interval })
-		setTimeout(() => this.reduceTime({ token, interval }), interval * 1000);
+		catch (err) {
+			console.log(err);
+		}
 	}
 }

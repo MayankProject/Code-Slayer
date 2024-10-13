@@ -3,8 +3,13 @@ dotenv.config({ path: '../../.env' });
 
 import RedisManager from "./RedisManager";
 import Worker from "./Worker";
-import { payload } from "@repo/types"
 
+type payload = {
+	arena_token: string;
+	problem_id: string;
+	source_code: string;
+	language_id: number;
+};
 const worker: Worker = Worker.getInstance()
 async function main() {
 	const redis: RedisManager = RedisManager.getInstance()
