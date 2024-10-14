@@ -9,7 +9,7 @@ const wss = new WebSocketServer({ port: 3002 });
 UsersManager.getInstance()
 RedisManager.getInstance()
 wss.on("connection", (ws) => {
-	console.log("New user connected")
-	UsersManager.getInstance().addUser(ws);
+    console.log("New user connected")
+    UsersManager.getInstance().addUser(ws);
 });
 
