@@ -1,11 +1,11 @@
 import { resultDataState, showResultState } from "@/state";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 
 export default function ReportComponent() {
     const resultData = useRecoilValue(resultDataState);
-    const setShowResult = useSetRecoilState(showResultState)
+    const setShowResult = useRecoilValue(showResultState)
     const session = useSession()
 
     return (
@@ -22,15 +22,8 @@ export default function ReportComponent() {
                 < div className="font-bold text-xl" >
                     Your Score: {resultData?.score} | Best Score: {resultData?.bestScore} | Solved: {resultData?.solved} / {resultData?.solvedOutOf}
                 </div>
-                < button className="bg-[#2CBB5D] px-4 py-[7px] rounded-lg text-white" >
-                    Spectate!
-                </button>
 
-                <div className="absolute right-6 top-6 text-white hover:scale-[1.1] cursor-pointer"
-                    onClick={() => {
-                        setShowResult(false)
-                    }}
-                >
+                <div className="absolute right-6 top-6 text-white hover:scale-[1.1] cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
