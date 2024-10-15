@@ -3,9 +3,9 @@ import assert from "assert";
 import { getServerSession } from "next-auth";
 import db from "@/db";
 import { authOptions } from "@/app/authConfig";
-import RedisManager from "@/RedisManager";
+import finishArena from "./finish-arena";
+import { Result } from "@/components/Smackdown";
 
-const redis = RedisManager.getInstance();
 export default async function verifyStanding(token: string) {
     const session = await getServerSession(authOptions);
     assert(session, "Session not found");
@@ -22,7 +22,6 @@ export default async function verifyStanding(token: string) {
     if (userHasResigned) {
         return false;
     }
-
     const userWithSubmission = await db.user.findFirst({
         where: {
             id: session.user.id,
@@ -69,7 +68,8 @@ export default async function verifyStanding(token: string) {
                 select: {
                     id: true,
                 }
-            }
+            },
+            points: true
         }
     });
     assert(arena, "Arena not found");
@@ -95,28 +95,22 @@ export default async function verifyStanding(token: string) {
                     data: {
                         userId: session.user.id,
                         arenaId: arena.id,
-                        rank: prevStandings + 1,
+                        points: arena.points
                     }
                 });
                 assert(_createdStanding, "Failed to create standing");
 
                 if (arena.Standings.length + 1 === arena.users.length) {
-                    await db.arena.update({
-                        where: {
-                            id: arena.id
-                        },
-                        data: {
-                            phase: "Lobby"
-                        }
-                    });
-                    redis.publish(
-                        token,
-                        {
-                            e: "FINISH_ARENA",
-                        }
-                    )
+                    finishArena(token);
                 }
-                return { standings: prevStandings + 1 };
+                const res: Result = {
+                    score: arena.points,
+                    bestScore: arena.points,
+                    solved: arena.problems.length,
+                    solvedOutOf: arena.problems.length,
+                    token: token,
+                }
+                return res;
 
             } catch (error) {
                 console.log("Failed to create standings");

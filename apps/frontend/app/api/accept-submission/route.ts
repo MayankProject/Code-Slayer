@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
             problemId: number;
             workerSecretKey: string;
         } = await req.json();
+
         if (payload.workerSecretKey !== process.env.WORKER_SECRET_KEY) {
             return new Response("Unauthorized");
         }
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
         if (!arena) {
             throw new Error("Arena not found");
         }
+
         const submissionId = await db.submission.create({
             data: {
                 code: payload.code,

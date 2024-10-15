@@ -8,9 +8,8 @@ import { useEffect, useState } from "react";
 import Pane from "./Pane";
 import Console from "./Console";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { allProblems, canSpectateState, consoleVisible, currentProblem, loader, timeState } from "@/state";
+import { allProblems, canSpectateState, consoleVisible, currentProblem, loader, resultDataState, showResultState, timeState } from "@/state";
 import { useRouter } from "next/navigation";
-import finishArena from "@/actions/finish-arena";
 import { WebSocketManager } from "@/WebsocketManager";
 import submit from "@/actions/submit";
 import verifySubmission from "@/actions/verifySubmission";
@@ -19,6 +18,7 @@ import resign from "@/actions/resign";
 import Time from "./Time";
 import verifyStanding from "@/actions/verify-standing";
 import RoastComponent from "./RoastComponent";
+import ReportComponent from "./ReportComponent";
 
 export interface Problem {
     id: number;
@@ -33,12 +33,21 @@ export interface Problem {
     }[]
 }
 
+export interface Result {
+    score: number,
+    bestScore: number,
+    solved: number,
+    solvedOutOf: number,
+    token: string,
+}
 const ws = WebSocketManager.getInstance();
 export default function Smackdown({ token, problemsData, spectateEligible, timeLimit }: { token: string, problemsData: Problem[], spectateEligible: boolean, timeLimit: number }) {
     const [Problems, setProblems] = useRecoilState(allProblems);
     const [problemIndex, setProblemIndex] = useRecoilState(currentProblem);
     const [Problem, setProblem] = useState<Problem>(Problems[problemIndex]);
     const setLoader = useSetRecoilState(loader);
+    const setResult = useSetRecoilState(resultDataState)
+    const setShowResult = useSetRecoilState(showResultState)
     const [_Console, setConsole] = useRecoilState(consoleVisible);
     const [nProblems] = useState(problemsData.length);
     const [canSpectate, setCanSpectate] = useRecoilState(canSpectateState);
@@ -63,15 +72,8 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
         }
         setProblemIndex(problemIndex - 1);
     };
-    const arenaFinishedCallback = (() => {
-        finishArena(token);
-        const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
-        setLoader({ percentage: randomNumber });
-        router.push("/arena/" + token);
-    })
     useEffect(() => {
         setLoader({ percentage: undefined });
-        ws.attachCallback("FINISH_ARENA", arenaFinishedCallback);
         setProblemIndex(0);
         setCanSpectate(spectateEligible);
         setProblems(() => {
@@ -79,14 +81,13 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
                 return { ...problem, testResult: {}, PassedTestCases: [], FailedTestCases: [] };
             });
         });
-        return () => {
-            ws.detachCallback("FINISH_ARENA", arenaFinishedCallback);
-        }
     }, []);
 
     const _resign = () => toast.promise(new Promise(async (resolve, reject) => {
         const res = await resign(token);
         if (res) {
+            setResult(res)
+            setShowResult(true)
             resolve(true);
             setCanSpectate(true);
         }
@@ -118,9 +119,7 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
         });
         setConsole(true);
         resolve(true);
-        console.log(test_id)
         ws.attachSolutionCallback(test_id, async (message) => {
-            console.log(message)
             // if passed all the test cases
             if (message.submission_id) {
                 // check if submission is legitamate
@@ -138,6 +137,8 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
                 // check if user has completed all the problems
                 const verifyStandingRes = await verifyStanding(token);
                 if (verifyStandingRes) {
+                    setResult(verifyStandingRes);
+                    setShowResult(true)
                     toast.success(() => {
                         return <div className="flex gap-2 items-center" >
                             <h1 onClick={
@@ -213,14 +214,14 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                             </svg>
                         </div>
-                        < div className={`relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200  px-4 py-[4px] rounded-lg  text-gray-400`
+                        {!canSpectate && < div className={`relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200  px-4 py-[4px] rounded-lg  text-gray-400`
                         }
                             onClick={_resign}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
                             </svg>
-                        </div>
+                        </div>}
                         {
                             canSpectate &&
                             <div className={
@@ -269,9 +270,9 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
 
                 </div>
             </div>
-            <Allotment>
+            < Allotment >
                 <Allotment.Pane className="px-[4px]" >
-                    < ProblemDescription description={Problem?.description} />
+                    <ProblemDescription description={Problem?.description} />
                 </Allotment.Pane>
                 < Allotment vertical className="overflow-hidden relative" >
                     <Allotment.Pane className="px-[4px] pb-3" >
@@ -300,7 +301,9 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
                         </Pane>
                     </Allotment.Pane>
                 </Allotment>
+
             </Allotment>
+
 
         </div >
     );

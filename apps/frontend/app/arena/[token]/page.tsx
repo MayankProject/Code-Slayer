@@ -14,7 +14,8 @@ export default async function Arena({ params: { token } }: { params: { token: st
                 }
             },
             admin: true,
-            phase: true
+            phase: true,
+            points: true
         },
 
     });
@@ -27,16 +28,19 @@ export default async function Arena({ params: { token } }: { params: { token: st
         },
         select: {
             userId: true,
-            rank: true,
-        }
+            points: true,
+            resigned: true
+        },
     });
-    const standingsMap = new Map(standings.map((standing) => [standing.userId, standing.rank]));
+    const standingsMap = new Map(standings.map((standing) => [standing.userId, { points: standing.points, resigned: standing.resigned }]));
     const arenaUsers = arenaDetails.users.map((user) => {
+        const standings = standingsMap.get(user.id);
         return {
-            ...user, admin: arenaDetails.admin === user.id, rank: standingsMap.get(user.id)
+            ...user, admin: arenaDetails.admin === user.id, points: standings?.points, resigned: standings?.resigned
         }
     })
+    const sortedByPoints = arenaUsers.sort((a, b) => (b.points || 0) - (a.points || 0));
     return (
-        <Lobby data={arenaUsers} status={arenaDetails.phase} token={token} />
+        <Lobby data={sortedByPoints} totalPoints={arenaDetails.points} status={arenaDetails.phase} token={token} />
     );
 }

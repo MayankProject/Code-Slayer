@@ -52,6 +52,7 @@ model Arena {
   phase       Phase    @default(Lobby)
   description String
   duration    Int
+  points      Int      @default(0)
   startTime   DateTime @default(now())
   problems    ArenaProblem[]
   endTime     DateTime
@@ -83,9 +84,9 @@ model Standings {
   arenaId     Int
   arena       Arena    @relation(fields: [arenaId], references: [id])
   resigned    Boolean  @default(false)
-  rank        Int
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
+  points      Int      @default(0)
   @@unique([arenaId, userId])
 }
 

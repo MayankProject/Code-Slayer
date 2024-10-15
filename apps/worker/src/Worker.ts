@@ -30,7 +30,6 @@ export default class Worker {
                 workerSecretKey: WORKER_SECRET_KEY,
             })
             const finalSourceCode = this.injectTestCase(payload.source_code, problem.TestCases, problem.testBoilerCode)
-            console.log(finalSourceCode)
             const { data: { token } }: {
                 data: {
                     token: string;
@@ -41,7 +40,6 @@ export default class Worker {
                 }
             })
             const data = await this.getResult(token);
-            console.log(data.stdout, data)
             if (data.stderr) {
                 return { ...data };
             }
@@ -155,7 +153,11 @@ export default class Worker {
             assert(timeLimit, "TimeLimit not found");
             this.ArenaTimeMap.set(token, timeLimit - interval);
             if (timeLimit - interval <= 0) {
-                redis.publish(token, { id: token, e: "FINISH_ARENA" })
+                console.log("finishing arena")
+                await axios.post(`${BACKEND_URL}/api/finish-arena`, {
+                    token,
+                    workerSecretKey: WORKER_SECRET_KEY
+                })
                 return;
             }
             axios.post(`${BACKEND_URL}/api/update-timelimit`, {

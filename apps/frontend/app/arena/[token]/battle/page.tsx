@@ -21,6 +21,7 @@ export default async function Battle({ params: { token } }: { params: { token: s
             Standings: {
                 select: {
                     userId: true,
+                    resigned: true
                 }
             },
         },

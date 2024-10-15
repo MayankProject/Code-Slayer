@@ -16,6 +16,15 @@ export default async function createArena() {
                 problemId: problem.id,
             }
         })
+        const difficultyValues = {
+            Easy: 5,
+            Medium: 10,
+            Hard: 20,
+        };
+        const points = shuffledProblems.reduce((sum, problem) => {
+            return sum + difficultyValues[problem.difficulty];
+        }, 0)
+        console.log(points)
         await db.arena.create({
             data: {
                 description: "",
@@ -23,6 +32,7 @@ export default async function createArena() {
                 token: token,
                 startTime: new Date(),
                 endTime: new Date(new Date().getTime() + 60 * 60 * 1000),
+                points: points,
                 problems: {
                     createMany: {
                         data: selectedProblems,

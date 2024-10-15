@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Arena" ADD COLUMN     "points" INTEGER NOT NULL DEFAULT 0;

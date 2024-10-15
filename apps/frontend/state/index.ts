@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { Problem } from "@/components/Smackdown";
+import { Problem, Result } from "@/components/Smackdown";
 import { User } from "@/components/Lobby";
 export const consoleText = atom<string>({
     key: "console",
@@ -54,3 +54,12 @@ export const hideNavigationState = atom<boolean>({
     key: "hideNavigation",
     default: true
 })
+export const resultDataState = atom<Result | null>({
+    key: "resultData",
+    default: null
+})
+export const showResultState = atom<boolean>({
+    key: "showResultData",
+    default: false
+})
+

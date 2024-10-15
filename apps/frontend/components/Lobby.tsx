@@ -15,10 +15,11 @@ export interface User {
     name: string | null,
     id: number,
     admin: boolean,
-    rank: number | undefined
+    points: number | undefined,
+    resigned: boolean | undefined
 }
 const ws = WebSocketManager.getInstance();
-export default function Lobby({ data, status, token }: { data: User[], token: string, status: "Lobby" | "Battle" }) {
+export default function Lobby({ data, status, token, totalPoints }: { data: User[], token: string, status: "Lobby" | "Battle", totalPoints: number }) {
     const setTokenState = useSetRecoilState(tokenState);
     const [Users, setUser] = useRecoilState(allUsersState);
     const [isJoined, setIsJoined] = useState<boolean | undefined>(undefined);
@@ -36,7 +37,7 @@ export default function Lobby({ data, status, token }: { data: User[], token: st
         }
         if (message.task === "JOIN_ARENA") {
             toast.success(`${message.name} joined the arena!`);
-            setUser((Users) => [...Users, { name: message.name, id: message.userId, admin: false, rank: undefined }]);
+            setUser((Users) => [...Users, { name: message.name, id: message.userId, admin: false, points: undefined, resigned: undefined }]);
         }
         if (message.task === "LEAVE_ARENA") {
             toast.success(`${message.name} Left the arena!`);
@@ -94,7 +95,7 @@ export default function Lobby({ data, status, token }: { data: User[], token: st
         const userId = session?.data?.user.id;
         const name = session?.data?.user.name;
         const status = await JoinArena(token);
-        setUser((Users) => [...Users, { name: name, id: userId, admin: false, rank: undefined }]);
+        setUser((Users) => [...Users, { name: name, id: userId, admin: false, points: undefined, resigned: undefined }]);
         assert(status, "Failed to join arena!");
         ws.attachCallback("START_ARENA", (message) => {
             assert(message.id === token, "Invalid token");
@@ -133,16 +134,30 @@ export default function Lobby({ data, status, token }: { data: User[], token: st
                 <div className="h-full w-1/4 flex flex-col gap-3" >
                     <div className="flex flex-col flex-1 gap-2 backdrop-blur-xl border rounded-lg p-3 border-gray-500/20" >
                         {
-                            Users.map((user) => {
+                            Users.map((user, rank) => {
                                 return (
                                     <div key={user.id} className="border flex justify-between hover:scale-x-[1.01] transition-all rounded-lg px-6 py-3 bg-[#111111] border-gray-500/20" >
                                         <div className="flex gap-2" >
+
+                                            {session?.data?.user.id === user.id && <div className="text-gray-400" > 👤 </div>}
                                             {user.name}
-                                            {session?.data?.user.id === user.id && <div className="text-gray-400" > (You) </div>}
+
                                         </div>
-                                        {
-                                            user.rank !== undefined && <div className="text-gray-400" > {user.rank === 0 ? "( resigned )" : `( #${user.rank} )`} </div>
-                                        }
+                                        <div className="flex gap-2 items-center">
+                                            <span className="text-gray-400 ">
+                                                ({user.points ?? 0}/{totalPoints})
+                                            </span>
+                                            {
+                                                user.resigned !== undefined && <div className="text-gray-400" >
+                                                    {
+                                                        user.resigned ?
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5" >
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+                                                            </svg>
+                                                            : `#${rank + 1} `
+                                                    } </div>
+                                            }
+                                        </div>
                                     </div>
                                 )
                             })
