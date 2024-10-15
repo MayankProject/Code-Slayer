@@ -15,7 +15,7 @@ export default function TestCases() {
     }, [Problems, problemIndex]);
 
     return (
-        <div className="overflow-scroll" >
+        <div className="overflow-auto" >
             <div className="p-3" >
                 {problem && <Tabs
                     TabHead={

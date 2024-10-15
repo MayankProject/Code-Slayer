@@ -22,7 +22,7 @@ export default function Console() {
         };
     });
     return (
-        <div className="h-full overflow-scroll px-4 py-2" >
+        <div className="h-full overflow-auto px-4 py-2" >
             {
                 Object.keys(testResultValue).length ?
                     <div>

@@ -3,7 +3,7 @@
 export default function Loading() {
     return (
 
-        <div className="p-4 h-screen w-full gap-2 flex flex-1 overflow-scroll resize">
+        <div className="p-4 h-screen w-full gap-2 flex flex-1 overflow-auto resize">
             {/* Problem Description */}
             <div className="w-1/2 h-full bg-gray-700 rounded-md animate-pulse mb-4"></div>
             <div className="flex flex-col flex-1 w-full gap-4">

@@ -243,3 +243,18 @@ canvas{
   left: 40px !important;
   width: 100%;
 }
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
