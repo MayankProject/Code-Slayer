@@ -3,6 +3,7 @@ import ExampleBody from "./ExampleBody";
 import TestcasePassed from "./TestcasePassed";
 import { useRecoilValue } from "recoil";
 import Error from "./Error";
+import SolutionLoading from "./SolutionLoading";
 export default function Console() {
     const currentProblemIndex = useRecoilValue(currentProblem);
     const Problems = useRecoilValue(allProblems);
@@ -21,11 +22,12 @@ export default function Console() {
             passed: false
         };
     });
+    console.log(testResultValue)
     return (
         <div className="h-full overflow-auto px-4 py-2" >
             {
-                Object.keys(testResultValue).length ?
-                    <div>
+                (Object.keys(testResultValue).length && !testResultValue.loading) ?
+                    <>
                         {
                             testResultValue.status.id === 3 ?
                                 <TestcasePassed /> :
@@ -37,7 +39,7 @@ export default function Console() {
                                                     Object.entries(allTestCasesDetails).map(([key, value]) => (
                                                         <button
                                                             key={key}
-                                                            className={`relative  transition-200 mb-4 px-4 py-[4px] rounded-xl ${value.passed ? "bg-[#2CBB5D]" : "bg-destructive"}`}
+                                                            className={`relative  transition-200 px-4 py-[4px] rounded-xl ${value.passed ? "bg-[#2CBB5D]" : "bg-destructive"}`}
                                                         >
                                                             Testcase {key}
                                                         </button>
@@ -55,8 +57,12 @@ export default function Console() {
                                 </>
                                 )
                         }
-                    </div> :
-                    < div className="h-full flex justify-center items-center opacity-70 " > Empty Console </ div >
+                    </> :
+                    (
+                        testResultValue.loading ?
+                            <SolutionLoading /> :
+                            < div className="h-full flex justify-center items-center opacity-70 " > Empty Console </ div >
+                    )
             }
         </div>
     )

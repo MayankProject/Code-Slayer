@@ -172,7 +172,7 @@ const HangBall: React.FC = () => {
             removeEventListener('mouseup', () => { });
         }
 
-    }, [session]);
+    }, [session, canvas]);
 
 
     useEffect(() => {
@@ -181,7 +181,6 @@ const HangBall: React.FC = () => {
             setCanHideMessage(true);
         }, 3000);
     }, [showMessage])
-
     return (
         <div ref={parentDivRef} className='h-full cursor-grab w-full' >
             {

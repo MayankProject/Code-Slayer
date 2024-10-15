@@ -17,6 +17,8 @@ import verifySubmission from "@/actions/verifySubmission";
 import { toast } from "react-toastify"
 import resign from "@/actions/resign";
 import Time from "./Time";
+import verifyStanding from "@/actions/verify-standing";
+import RoastComponent from "./RoastComponent";
 
 export interface Problem {
     id: number;
@@ -106,10 +108,36 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
                 key: test_id
             }
         })
+        setProblems((prev) => {
+            return prev.map((problem) => {
+                if (problem.id === id) {
+                    problem.testResult = { loading: true };
+                }
+                return problem;
+            })
+        });
+        setConsole(true);
+        resolve(true);
+        console.log(test_id)
         ws.attachSolutionCallback(test_id, async (message) => {
+            console.log(message)
+            // if passed all the test cases
             if (message.submission_id) {
+                // check if submission is legitamate
                 const res = await verifySubmission(message.submission_id, token);
                 if (res) {
+                    setProblems((prev) => {
+                        return prev.map((problem) => {
+                            if (problem.id === id) {
+                                problem.testResult = { ...message, status: { id: 3 }, loading: false };
+                            }
+                            return problem;
+                        })
+                    });
+                }
+                // check if user has completed all the problems
+                const verifyStandingRes = await verifyStanding(token);
+                if (verifyStandingRes) {
                     toast.success(() => {
                         return <div className="flex gap-2 items-center" >
                             <h1 onClick={
@@ -117,46 +145,41 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
                                     const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
                                     setLoader({ percentage: randomNumber });
                                     router.push(`/arena/${token}/spectate`);
-
                                 }
                             }> Spectate! </h1>
                         </div>;
                     });
                     setCanSpectate(true);
                 }
+                return;
             }
+            // if did not pass all the test cases and there is no error in the code
             if (message.stdout && !message.stderr) {
                 // removed the last two lines of stdout because it's the test result
                 const restStdout = message.stdout.trim().split("\n").slice(0, -2).join("\n");
                 const PassedAndFailedTestCases = message.stdout.trim().split("\n").slice(-2).map((x: string) => JSON.parse(x))
                 const PassedTestCases = PassedAndFailedTestCases[0]
                 const FailedTestCases = PassedAndFailedTestCases[1]
-                if (FailedTestCases.length === 0) {
-                    resolve(true);
-                }
-                else {
-                    reject(false);
-                }
                 setProblems((prev) => {
                     return prev.map((problem) => {
                         if (problem.id === id) {
                             problem.PassedTestCases = PassedTestCases;
                             problem.FailedTestCases = FailedTestCases;
-                            problem.testResult = { ...message, stdout: restStdout, status: { id: FailedTestCases.length === 0 ? 3 : false } };
+                            problem.testResult = { ...message, stdout: restStdout, status: { id: false }, loading: false };
                         }
                         return problem;
                     })
                 });
-                setConsole(true);
             }
+
+            // if there is an error in the code
             else if (message.stderr) {
-                reject(false);
                 setProblems((prev) => {
                     return prev.map((problem) => {
                         if (problem.id === id) {
                             problem.PassedTestCases = [];
                             problem.FailedTestCases = new Array().fill(0).map((_, i) => i);
-                            problem.testResult = { ...message, stdout: null, status: { id: false } };
+                            problem.testResult = { ...message, stdout: null, status: { id: false }, loading: false };
                         }
                         return problem;
                     })
@@ -166,7 +189,7 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
         });
     }), {
         pending: "Submitting...",
-        success: "All Tests Passed!",
+        success: "Made Submission, waiting for the result...",
         error: "Oopsie Daisy!"
     });
     useEffect(() => {
@@ -175,47 +198,52 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
     return (
         <div className="p-2 h-1 min-h-screen w-full flex-1 overflow-auto resize" >
             <div className="flex justify-between px-4 my-1 items-center" >
-                <div className="flex gap-2" >
-                    <Time timeLimit={timeLimit} />
-                    < div className={`relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 px-4 py-[1px] rounded-lg  text-gray-400`
-                    }
-                        onClick={() => {
-                            const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
-                            setLoader({ percentage: randomNumber });
-                            router.push(`/arena/${token}`);
-                        }}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-                        </svg>
-                    </div>
-                    < div className={`relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200  px-4 py-[4px] rounded-lg  text-gray-400`
-                    }
-                        onClick={_resign}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
-                        </svg>
-                    </div>
-                    {
-                        canSpectate &&
-                        <div className={
-                            `relative flex items-center border cursor-pointer hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 px-4 py-[4px] rounded-lg  text-gray-400`
+                <div className="flex-1 pr-3 gap-2" >
+                    <div className="flex gap-2" >
+                        <Time timeLimit={timeLimit} />
+                        < div className={`relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 px-4 py-[1px] rounded-lg  text-gray-400`
                         }
                             onClick={() => {
                                 const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
                                 setLoader({ percentage: randomNumber });
-                                router.push(`/arena/${token}/spectate`);
-                            }
-                            }
+                                router.push(`/arena/${token}`);
+                            }}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                             </svg>
                         </div>
-                    }
+                        < div className={`relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200  px-4 py-[4px] rounded-lg  text-gray-400`
+                        }
+                            onClick={_resign}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+                            </svg>
+                        </div>
+                        {
+                            canSpectate &&
+                            <div className={
+                                `relative flex items-center border cursor-pointer hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200 px-4 py-[4px] rounded-lg  text-gray-400`
+                            }
+                                onClick={() => {
+                                    const randomNumber = Math.floor(Math.random() * (100 - 40) + 40);
+                                    setLoader({ percentage: randomNumber });
+                                    router.push(`/arena/${token}/spectate`);
+                                }
+                                }
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                </svg>
+                            </div>
+                        }
+                        <RoastComponent />
+
+                    </div>
                 </div>
+
                 < div className="flex gap-2 items-center" >
                     <button
                         onClick={prevProblem}

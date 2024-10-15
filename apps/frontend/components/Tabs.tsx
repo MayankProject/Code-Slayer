@@ -22,7 +22,7 @@ export default function Tabs({ TabHead, TabContent }: {
     const [TabID, setTabId] = useState<number>(0)
     return (
         <>
-            <div className="flex items-center gap-4" >
+            <div className="flex items-center" >
                 {
                     TabHead.map((tab, index) => (
                         <button
