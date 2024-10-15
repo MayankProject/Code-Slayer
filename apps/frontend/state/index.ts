@@ -60,6 +60,6 @@ export const resultDataState = atom<Result | null>({
 })
 export const showResultState = atom<boolean>({
     key: "showResultData",
-    default: true
+    default: false
 })
 
