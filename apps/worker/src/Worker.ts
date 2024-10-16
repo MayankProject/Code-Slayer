@@ -30,6 +30,7 @@ export default class Worker {
                 workerSecretKey: WORKER_SECRET_KEY,
             })
             const finalSourceCode = this.injectTestCase(payload.source_code, problem.TestCases, problem.testBoilerCode)
+            console.log(finalSourceCode)
             const { data: { token } }: {
                 data: {
                     token: string;
@@ -86,8 +87,8 @@ export default class Worker {
         for (let i = 0; i < TestCases.length; i++) {
             const testcase = TestCases[i];
             let _testBoilerCode = testBoilerCode;
-            for (let i = 0; i < testcase.input.split("\\n").length; i++) {
-                const input = testcase.input.split("\\n")[i];
+            for (let i = 0; i < testcase.input.split("\n").length; i++) {
+                const input = testcase.input.split("\n")[i];
                 _testBoilerCode = _testBoilerCode.replace(`#INPUT_${i + 1}#`, input)
             }
             _testBoilerCode = _testBoilerCode.replace("#OUTPUT#", testcase.output).replace("#i#", String(i + 1));
@@ -105,7 +106,6 @@ export default class Worker {
                 passedTestCases.push(${i + 1});
                 console.log("\\n\\n--Testcase ${i + 1} Output End")
             `;
-
             const wrapInsideFunction = (code: string) => {
                 const funcName = `test${Math.random().toString(36).slice(2)}`;
                 return `

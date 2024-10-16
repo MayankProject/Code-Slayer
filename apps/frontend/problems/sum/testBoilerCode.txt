@@ -1,0 +1,8 @@
+const array = #INPUT_1#
+const target = #INPUT_2#
+const output = #OUTPUT#
+const result = sum(array, target)
+if (output !== result){
+	wrong(`Expected : ${output} \nYour output : ${result}`);
+	return;
+}
