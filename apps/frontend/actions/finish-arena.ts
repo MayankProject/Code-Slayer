@@ -39,7 +39,6 @@ export default async function finishArena(token: string) {
             id: true
         }
     })
-    console.log(arena)
     const usersNotInStandings = arena.users.filter(user => !arena.Standings.some(standing => standing.userId === user.id))
 
     const difficultyValues = {
@@ -52,11 +51,8 @@ export default async function finishArena(token: string) {
         resigned: boolean,
         points: number
     }[] = []
-    console.log(usersNotInStandings)
     usersNotInStandings.forEach((user) => {
-        console.log(user.submissions)
         const UniqueSubmissions: { id: number, difficulty: "Easy" | "Medium" | "Hard" }[] = Array.from(new Set(user.submissions.map(submission => JSON.stringify(submission.problem)))).map(e => JSON.parse(e));
-        console.log(UniqueSubmissions)
         const accumulatedPoints = UniqueSubmissions.reduce((sum, submission) => {
             return sum + difficultyValues[submission.difficulty];
         }, 0)
@@ -78,6 +74,7 @@ export default async function finishArena(token: string) {
             }
         }
     })
+    console.log("finish arena by server to pub sub")
     redis.publish(
         token,
         {
