@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import db from "@/db";
 import "dotenv/config";
 import assert from "assert";
-import { NextApiRequest } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/authConfig";
 import { Result } from "@/components/Smackdown";

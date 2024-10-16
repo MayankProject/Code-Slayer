@@ -51,6 +51,7 @@ export default async function finishArena(token: string) {
         resigned: boolean,
         points: number
     }[] = []
+
     usersNotInStandings.forEach((user) => {
         const UniqueSubmissions: { id: number, difficulty: "Easy" | "Medium" | "Hard" }[] = Array.from(new Set(user.submissions.map(submission => JSON.stringify(submission.problem)))).map(e => JSON.parse(e));
         const accumulatedPoints = UniqueSubmissions.reduce((sum, submission) => {
@@ -74,7 +75,6 @@ export default async function finishArena(token: string) {
             }
         }
     })
-    console.log("finish arena by server to pub sub")
     redis.publish(
         token,
         {

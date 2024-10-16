@@ -91,7 +91,7 @@ export default async function resign(token: string) {
 
         // +1 because of the resigned user, so we dont have to query the db again
         if (arena.Standings.length + 1 === arena.users.length) {
-            finishArena(token)
+            await finishArena(token)
         }
         const res: Result = {
             score: accumulatedPoints,

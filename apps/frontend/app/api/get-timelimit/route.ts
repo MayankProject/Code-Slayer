@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
         assert(arena, "arena doesn't exist")
         return Response.json({ timeLimit: arena.timeLimit });
     } catch (e) {
-        console.error(e);
         return new Response("Something went wrong", { status: 500 });
     }
 }

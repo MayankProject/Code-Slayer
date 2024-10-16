@@ -85,6 +85,7 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
     const _resign = () => toast.promise(new Promise(async (resolve, reject) => {
         console.log("resigning")
         const res = await resign(token);
+        console.log(res)
         if (res) {
             setResult(res)
             setShowResult(true)
