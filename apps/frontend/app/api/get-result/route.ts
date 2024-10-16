@@ -25,6 +25,11 @@ export async function GET(req: NextRequest) {
 					},
 					select: {
 						submissions: {
+							where: {
+								arena: {
+									token: token
+								}
+							},
 							select: {
 								problem: true
 							}

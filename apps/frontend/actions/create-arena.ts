@@ -24,7 +24,6 @@ export default async function createArena() {
         const points = shuffledProblems.reduce((sum, problem) => {
             return sum + difficultyValues[problem.difficulty];
         }, 0)
-        console.log(points)
         await db.arena.create({
             data: {
                 description: "",
