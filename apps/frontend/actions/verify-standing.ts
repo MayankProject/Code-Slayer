@@ -5,10 +5,11 @@ import db from "@/db";
 import { authOptions } from "@/app/authConfig";
 import finishArena from "./finish-arena";
 import { Result } from "@/components/Smackdown";
+import { redirect } from "next/navigation";
 
 export default async function verifyStanding(token: string) {
     const session = await getServerSession(authOptions);
-    assert(session, "Session not found");
+    if (!session) return redirect("/");
 
     const userHasResigned = await db.standings.findFirst({
         where: {

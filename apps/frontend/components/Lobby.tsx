@@ -20,7 +20,6 @@ export interface User {
 }
 const ws = WebSocketManager.getInstance();
 export default function Lobby({ data, status, token, totalPoints }: { data: User[], token: string, status: "Lobby" | "Battle", totalPoints: number }) {
-    const setTokenState = useSetRecoilState(tokenState);
     const [Users, setUser] = useRecoilState(allUsersState);
     const [isJoined, setIsJoined] = useState<boolean | undefined>(undefined);
     const session = useSession();
@@ -54,7 +53,6 @@ export default function Lobby({ data, status, token, totalPoints }: { data: User
     }
     useEffect(() => {
         setUser(data)
-        setTokenState(token);
         setLoader({ percentage: undefined });
     }, [])
 
@@ -127,6 +125,16 @@ export default function Lobby({ data, status, token, totalPoints }: { data: User
         success: "Left!",
         error: "Oopsie Daisy! Something went wrong...",
     });
+    function copyLink() {
+        try {
+            navigator.clipboard.writeText(`${window.location.origin}/arena/${token}`);
+        } catch (error) {
+        }
+        setIsCopied(true);
+        setTimeout(() => {
+            setIsCopied(false);
+        }, 2000);
+    }
 
     return (
         <div className="p-3 h-1 w-full min-h-screen bg-gradient-to-br" >
@@ -139,13 +147,14 @@ export default function Lobby({ data, status, token, totalPoints }: { data: User
                                     <div key={user.id} className="border flex justify-between hover:scale-x-[1.01] transition-all rounded-lg px-6 py-3 bg-[#111111] border-gray-500/20" >
                                         <div className="flex gap-2" >
 
-                                            {session?.data?.user.id === user.id && <div className="text-gray-400" > 👤 </div>}
+                                            {session?.data?.user.id === user.id && <div className="text-gray-400" > 👤 </div>
+                                            }
                                             {user.name}
 
                                         </div>
-                                        <div className="flex gap-2 items-center">
-                                            <span className="text-gray-400 ">
-                                                ({user.points ?? 0}/{totalPoints})
+                                        < div className="flex gap-2 items-center" >
+                                            <span className="text-gray-400 " >
+                                                ({user.points ?? 0} / {totalPoints})
                                             </span>
                                             {
                                                 user.resigned !== undefined && <div className="text-gray-400" >
@@ -191,12 +200,24 @@ export default function Lobby({ data, status, token, totalPoints }: { data: User
                     {
 
                         isAdmin && status === "Lobby" &&
-                        <div
-                            onClick={_startArena}
-                            className="bg-[#111111] hover:scale-x-[1.01] transition-all text-center p-3 w-full rounded-lg cursor-pointer border-[#2CBB5D] border" >
-                            Start
-                        </div>
+                        <div className="flex gap-2 " >
+                            <div
+                                onClick={_startArena}
+                                className="bg-[#111111] flex-1 hover:scale-x-[1.01] transition-all text-center p-3 w-full rounded-lg cursor-pointer border-[#2CBB5D] border" >
+                                Start
 
+                            </div>
+                            <div className={
+                                `relative border cursor-pointer flex items-center hover:bg-[#1e1e1e] border-[#1e1e1e] transition-200  px-4 py-[4px] rounded-lg  text-gray-400`
+                            }
+                                onClick={copyLink}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" onClick={copyLink} strokeWidth={1.5} stroke="currentColor" className={`size-5  cursor-pointer hover:scale-[1.1] transition-all ${isCopied ? "stroke-green-500" : "stroke-gray-400"}`} >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                                </svg>
+                            </div
+                            >
+                        </div>
                     }
                 </div>
                 < div className="h-full w-3/4 flex flex-col gap-3" >
@@ -213,15 +234,7 @@ export default function Lobby({ data, status, token, totalPoints }: { data: User
                         </div>
                         |
                         <div className="flex gap-2 items-center" >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" onClick={
-                                () => {
-                                    navigator.clipboard.writeText(`${window.location.origin}/arena/${token}`);
-                                    setIsCopied(true);
-                                    setTimeout(() => {
-                                        setIsCopied(false);
-                                    }, 2000);
-                                }
-                            } strokeWidth={1.5} stroke="currentColor" className={`size-5  cursor-pointer hover:scale-[1.1] transition-all ${isCopied ? "stroke-green-500" : "stroke-gray-400"}`} >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" onClick={copyLink} strokeWidth={1.5} stroke="currentColor" className={`size-5  cursor-pointer hover:scale-[1.1] transition-all ${isCopied ? "stroke-green-500" : "stroke-gray-400"}`} >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
                             </svg>
                             <p>

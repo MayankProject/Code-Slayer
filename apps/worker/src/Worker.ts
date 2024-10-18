@@ -150,7 +150,7 @@ export default class Worker {
     async reduceTime({ token, interval }: { token: string, interval: number }) {
         try {
             const timeLimit = this.ArenaTimeMap.get(token);
-            assert(timeLimit, "TimeLimit not found");
+            if (!timeLimit) return;
             this.ArenaTimeMap.set(token, timeLimit - interval);
             if (timeLimit - interval <= 0) {
                 console.log("finishing arena")
@@ -171,5 +171,8 @@ export default class Worker {
         catch (err) {
             console.log(err);
         }
+    }
+    async finishArena(token: string) {
+        this.ArenaTimeMap.delete(token);
     }
 }

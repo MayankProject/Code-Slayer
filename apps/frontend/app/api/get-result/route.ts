@@ -8,7 +8,9 @@ import { Result } from "@/components/Smackdown";
 
 export async function GET(req: NextRequest) {
 	const session = await getServerSession(authOptions)
-	assert(session, "session doesn't exist")
+	if (!session) {
+		return new Response("Unauthorized", { status: 401 });
+	}
 	try {
 		const token = new URL(req.url).searchParams.get("token");
 		assert(token, "token is missing");
@@ -38,7 +40,9 @@ export async function GET(req: NextRequest) {
 				},
 			}
 		})
-		assert(arena, "arena does not exist")
+		if (!arena) {
+			return new Response("Arena not found", { status: 404 });
+		}
 		const UniqueSubmissions: { id: number, difficulty: "Easy" | "Medium" | "Hard" }[] = Array.from(new Set(arena.users[0].submissions.map(submission => JSON.stringify(submission.problem)))).map(e => JSON.parse(e));
 
 		const difficultyValues = {

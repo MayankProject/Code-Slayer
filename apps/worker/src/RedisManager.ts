@@ -31,13 +31,13 @@ export default class RedisManager {
         }
         return RedisManager.instance;
     }
-    async getFromQueue(): Promise<({ key: "submission" | "time_control", element: string })> {
+    async getFromQueue(): Promise<({ key: "submission" | "start_arena" | "finish_arena", element: string })> {
         return new Promise((resolve) => {
-            this.client.brPop(["submission", "time_control"], 0).then((response) => {
+            this.client.brPop(["submission", "start_arena", "finish_arena"], 0).then((response) => {
                 if (!response) {
                     throw new Error("No Response!")
                 }
-                resolve({ key: response.key as "submission" | "time_control", element: response.element })
+                resolve({ key: response.key as "submission" | "start_arena" | "finish_arena", element: response.element })
             })
         })
     }

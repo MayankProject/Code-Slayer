@@ -2,12 +2,14 @@
 import { getServerSession } from "next-auth";
 import db from "@/db";
 import { authOptions } from "@/app/authConfig";
-import assert from "assert";
 import RedisManager from "@/RedisManager";
+import { redirect } from "next/navigation";
 const redis = RedisManager.getInstance();
 export default async function joinArena(token: string) {
     const session = await getServerSession(authOptions);
-    assert(session, "Session not found");
+    if(!session){
+        return redirect("/")
+    }
     const userId = session.user.id;
 
     await db.arena.update({

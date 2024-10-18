@@ -3,12 +3,14 @@ import { getServerSession } from "next-auth";
 import db from "@/db";
 import { authOptions } from "@/app/authConfig";
 import assert from "assert";
-import RedisManager from "@/RedisManager";
 import finishArena from "./finish-arena";
 import { Result } from "@/components/Smackdown";
+import { redirect } from "next/navigation";
 export default async function resign(token: string) {
     const session = await getServerSession(authOptions);
-    assert(session, "Session not found");
+    if(!session){
+        return redirect('/') 
+    }
     try {
         // Cant resign if you have standing in this arena
         const arena = await db.arena.findFirst({
@@ -31,7 +33,7 @@ export default async function resign(token: string) {
                 points: true,
             }
         })
-        assert(arena, "Arena not found");
+        if (!arena) return redirect('/')
 
         const standings = await db.standings.findFirst({
             where: {
@@ -69,16 +71,17 @@ export default async function resign(token: string) {
             Medium: 10,
             Hard: 20,
         };
-        assert(userSubmissions, "User not found");
-        // [ { problem: { id: 1, difficulty: "Easy" } }, { problem: { id: 2, difficulty: "Medium" } }, { problem: { id: 3, difficulty: "Hard" } }, { problem: { id: 2, difficulty: "Medium" } } ]
+        // user not found for some weird fuckin reason
+        if (!userSubmissions) return redirect('/')
 
+        // [ { problem: { id: 1, difficulty: "Easy" } }, { problem: { id: 2, difficulty: "Medium" } }, { problem: { id: 3, difficulty: "Hard" } }, { problem: { id: 2, difficulty: "Medium" } } ]
         const UniqueSubmissions: { id: number, difficulty: "Easy" | "Medium" | "Hard" }[] = Array.from(new Set(userSubmissions.submissions.map(submission => JSON.stringify(submission.problem)))).map(e => JSON.parse(e));
 
         // [ { id: 1, difficulty: "Easy" }, { id: 2, difficulty: "Medium" }, { id: 3, difficulty: "Hard" } ]
-
         const accumulatedPoints = UniqueSubmissions.reduce((sum, submission) => {
             return sum + difficultyValues[submission.difficulty];
         }, 0)
+
         const standingsRes = await db.standings.create({
             data: {
                 userId: session.user.id,

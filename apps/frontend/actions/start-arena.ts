@@ -1,22 +1,34 @@
 "use server";
-import assert from "assert";
 import { getServerSession } from "next-auth";
 import db from "@/db";
 import { authOptions } from "@/app/authConfig";
 import RedisManager from "@/RedisManager";
+import { redirect } from "next/navigation";
 
 const redis = RedisManager.getInstance();
 export default async function startArena(token: string) {
     const session = await getServerSession(authOptions);
-    assert(session, "Session not found");
+    if (!session) return redirect("/")
     try {
-        await db.arena.update({
+        // finish arena if it is already started
+        redis.push('finish_arena', {
+            token,
+        });
+        const arena = await db.arena.update({
             where: {
                 token,
                 admin: session.user.id,
             },
             data: {
                 phase: "Battle",
+            },
+        });
+        await db.arena.update({
+            where: {
+                token,
+            },
+            data: {
+                timeLimit: arena.duration
             },
         });
         await db.standings.deleteMany({
@@ -39,7 +51,8 @@ export default async function startArena(token: string) {
             e: "START_ARENA",
             id: token
         });
-        redis.push('time_control', {
+        console.log("pushing");
+        redis.push('start_arena', {
             token,
         });
     }

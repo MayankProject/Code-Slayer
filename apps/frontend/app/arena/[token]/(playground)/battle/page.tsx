@@ -9,7 +9,6 @@ export default async function Battle({ params: { token } }: { params: { token: s
     if (!session) {
         return redirect(`/arena/${token}`);
     }
-    assert(session, "Unauthenticated");
     const userId = session.user.id;
     const arena = await db.arena.findFirst({
         where: {
@@ -24,12 +23,18 @@ export default async function Battle({ params: { token } }: { params: { token: s
                     resigned: true
                 }
             },
+            users: {
+                where: {
+                    id: userId
+                }
+            }
         },
     });
+    if (!arena) {
+        return redirect(`/`);
+    }
 
-    assert(arena, "No arena found");
-
-    if (arena.phase === "Lobby") {
+    if (arena.phase === "Lobby" || !arena.users.length) {
         return redirect("/arena/" + token);
     }
 

@@ -27,7 +27,6 @@ export default async function createArena() {
         await db.arena.create({
             data: {
                 description: "",
-                duration: 60,
                 token: token,
                 startTime: new Date(),
                 endTime: new Date(new Date().getTime() + 60 * 60 * 1000),

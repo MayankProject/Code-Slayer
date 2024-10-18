@@ -10,13 +10,27 @@ type payload = {
     source_code: string;
     language_id: number;
 };
+type message = {
+    key: "submission",
+    element: payload & { id: string }
+} |
+{
+    key: "start_arena",
+    element: { token: string }
+} |
+{
+    key: "finish_arena",
+    element: { token: string }
+}
+
 const worker: Worker = Worker.getInstance()
 async function main() {
     const redis: RedisManager = RedisManager.getInstance()
     while (1) {
         console.log("waiting for new message")
         const res = await redis.getFromQueue()
-        const { key, element }: { key: "submission", element: payload & { id: string } } | { key: "time_control", element: { token: string } } = { key: res.key, element: JSON.parse(res.element) }
+        const { key, element }: message = { key: res.key, element: JSON.parse(res.element) }
+        console.log(key, element)
         try {
             if (key === "submission") {
                 const Payload = element
@@ -24,9 +38,13 @@ async function main() {
                 console.log(response)
                 redis.publish(Payload.id, { id: Payload.id, e: "SUBMISSION", ...response })
             }
-            else {
+            else if (key === "start_arena") {
                 const Payload = element
                 worker.timeControl(Payload.token)
+            }
+            else if (key === "finish_arena") {
+                const Payload = element
+                worker.finishArena(Payload.token)
             }
         }
         catch (e: unknown) {

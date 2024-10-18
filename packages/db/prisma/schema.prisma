@@ -51,7 +51,7 @@ model Arena {
   token       String   @unique
   phase       Phase    @default(Lobby)
   description String
-  duration    Int
+  duration    Int     @default(1800)
   points      Int      @default(0)
   startTime   DateTime @default(now())
   problems    ArenaProblem[]

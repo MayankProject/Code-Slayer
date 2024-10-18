@@ -7,8 +7,8 @@ import TestCases from "./TestCases";
 import { useEffect, useState } from "react";
 import Pane from "./Pane";
 import Console from "./Console";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { allProblems, canSpectateState, consoleVisible, currentProblem, loader, resultDataState, showResultState, timeState } from "@/state";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { allProblems, canSpectateState, consoleVisible, currentProblem, loader, resultDataState, showResultState, tokenState } from "@/state";
 import { useRouter } from "next/navigation";
 import { WebSocketManager } from "@/WebsocketManager";
 import submit from "@/actions/submit";
@@ -47,9 +47,11 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
     const setLoader = useSetRecoilState(loader);
     const setResult = useSetRecoilState(resultDataState)
     const setShowResult = useSetRecoilState(showResultState)
+    const setTokenState = useSetRecoilState(tokenState);
     const [_Console, setConsole] = useRecoilState(consoleVisible);
     const [nProblems] = useState(problemsData.length);
     const [canSpectate, setCanSpectate] = useRecoilState(canSpectateState);
+    const _token = useRecoilValue(tokenState);
     const router = useRouter();
     const showConsole = () => {
         setConsole(true);
@@ -72,14 +74,18 @@ export default function Smackdown({ token, problemsData, spectateEligible, timeL
         setProblemIndex(problemIndex - 1);
     };
     useEffect(() => {
+        console.log(token, _token, problemsData.length, problemsData)
+        if (token !== _token || !Problems.length) {
+            setProblems(() => {
+                return problemsData.map((problem) => {
+                    return { ...problem, testResult: {}, PassedTestCases: [], FailedTestCases: [] };
+                });
+            });
+        }
+        setTokenState(token);
         setLoader({ percentage: undefined });
         setProblemIndex(0);
         setCanSpectate(spectateEligible);
-        setProblems(() => {
-            return problemsData.map((problem) => {
-                return { ...problem, testResult: {}, PassedTestCases: [], FailedTestCases: [] };
-            });
-        });
     }, []);
 
     const _resign = () => toast.promise(new Promise(async (resolve, reject) => {

@@ -75,10 +75,10 @@ export default async function finishArena(token: string) {
             }
         }
     })
-    redis.publish(
+    redis.publish(token, {
+        e: "FINISH_ARENA",
+    })
+    redis.push('finish_arena', {
         token,
-        {
-            e: "FINISH_ARENA",
-        }
-    )
+    });
 }

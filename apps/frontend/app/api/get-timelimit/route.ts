@@ -19,11 +19,11 @@ export async function POST(req: NextRequest) {
                 token: payload.token
             },
             select: {
-                timeLimit: true
+                duration: true,
             }
         })
         assert(arena, "arena doesn't exist")
-        return Response.json({ timeLimit: arena.timeLimit });
+        return Response.json({ timeLimit: arena.duration });
     } catch (e) {
         return new Response("Something went wrong", { status: 500 });
     }
