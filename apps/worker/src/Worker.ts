@@ -37,7 +37,7 @@ export default class Worker {
                 }
             } = await axios.post(`${JUDGE0_URL}/submissions`, { ...payload, source_code: finalSourceCode }, {
                 headers: {
-                    "x-rapidapi-key": JUDGE0_API_KEY,
+                    "Authorization": `Bearer ${JUDGE0_API_KEY}`,
                 }
             })
             const data = await this.getResult(token);
@@ -127,7 +127,7 @@ export default class Worker {
     async getResult(token: string, interval?: number): Promise<any> {
         const { data } = await axios.get(`${JUDGE0_URL}/submissions/${token}`, {
             headers: {
-                "x-rapidapi-key": JUDGE0_API_KEY,
+                "Authorization": `Bearer ${JUDGE0_API_KEY}`,
             }
         })
         if (data.status.description === "In Queue" || data.status.description === "Processing") {
