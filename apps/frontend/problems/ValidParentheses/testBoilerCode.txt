@@ -1,0 +1,8 @@
+const s = #INPUT_1#
+const output = #OUTPUT#
+const result = isValid(s)
+if (output !== result) {
+	wrong(`Expected : ${output} 
+Your output : ${result}`);
+	return;
+}

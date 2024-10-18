@@ -1,0 +1,8 @@
+const x = #INPUT_1#;
+const output = #OUTPUT#;
+const result = isPalindrome(x);
+if (output !== result) {
+	wrong(`Expected : ${output} 
+Your output : ${result}`);
+	return;
+}

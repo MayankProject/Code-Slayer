@@ -94,17 +94,23 @@ export default class Worker {
             _testBoilerCode = _testBoilerCode.replace("#OUTPUT#", testcase.output).replace("#i#", String(i + 1));
             _testBoilerCode = `
                 const wrong = (message) => {
-                console.log("status: failed")
-                    console.log(message);
+                    if (${i + 1} <= 2) {
+                    console.log("status: failed")
+                        console.log(message);
+                        console.log("\\n\\n--Testcase ${i + 1} Output End")
+                    }
                     failedTestCases.push(${i + 1});
+                }
+                if (${i + 1} <= 2) {
+                    console.log("--Testcase ${i + 1} Output \\n\\n")
+                }
+                ${_testBoilerCode}
+                if (${i + 1} <= 2) {
+                     console.log("status: passed")
+                     console.log(\`Expected : \${output} \\nYour output : \${result}\`);
                     console.log("\\n\\n--Testcase ${i + 1} Output End")
                 }
-                console.log("--Testcase ${i + 1} Output \\n\\n")
-                ${_testBoilerCode}
-                console.log("status: passed")
-                console.log(\`Expected : \${output} \\nYour output : \${result}\`);
                 passedTestCases.push(${i + 1});
-                console.log("\\n\\n--Testcase ${i + 1} Output End")
             `;
             const wrapInsideFunction = (code: string) => {
                 const funcName = `test${Math.random().toString(36).slice(2)}`;

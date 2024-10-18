@@ -1,0 +1,9 @@
+const s = #INPUT_1#
+const t = #INPUT_2#
+const output = #OUTPUT#
+const result = isAnagram(s, t)
+if (output !== result) {
+	wrong(`Expected : ${output} 
+Your output : ${result}`)
+	return
+}

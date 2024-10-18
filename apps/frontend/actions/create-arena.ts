@@ -14,14 +14,16 @@ export default async function createArena() {
         const selectedProblems = shuffledProblems.slice(0, 2).map((problem) => {
             return {
                 problemId: problem.id,
+                difficulty: problem.difficulty
             }
         })
+        const problemIds = selectedProblems.map(problem => ({ problemId: problem.problemId }));
         const difficultyValues = {
             Easy: 5,
             Medium: 10,
             Hard: 20,
         };
-        const points = shuffledProblems.reduce((sum, problem) => {
+        const points = selectedProblems.reduce((sum, problem) => {
             return sum + difficultyValues[problem.difficulty];
         }, 0)
         await db.arena.create({
@@ -33,7 +35,7 @@ export default async function createArena() {
                 points: points,
                 problems: {
                     createMany: {
-                        data: selectedProblems,
+                        data: problemIds,
                     }
                 },
                 users: {

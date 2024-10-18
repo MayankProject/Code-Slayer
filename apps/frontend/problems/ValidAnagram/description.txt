@@ -1,0 +1,22 @@
+# Valid Anagram
+
+Given two strings s and t, return true if t is an anagram of s, and false otherwise. An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
+
+### Input
+- Two strings, s and t.
+
+### Output
+- A boolean indicating whether t is an anagram of s.
+
+### Example
+
+**Input:**
+s = "anagram"
+t = "nagaram"
+
+**Output:**
+true
+
+### Constraints
+- The input strings consist of lowercase English letters.
+- The lengths of both strings are in the range [1, 5 * 10^4].
