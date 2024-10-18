@@ -1,27 +1,25 @@
 "use server";
 import db from "@/db";
 var nameList = [
-    'Time', 'Past', 'Future', 'Dev',
-    'Fly', 'Flying', 'Soar', 'Soaring', 'Power', 'Falling',
-    'Fall', 'Jump', 'Cliff', 'Mountain', 'Rend', 'Red', 'Blue',
-    'Green', 'Yellow', 'Gold', 'Demon', 'Demonic', 'Panda', 'Cat',
-    'Kitty', 'Kitten', 'Zero', 'Memory', 'Trooper', 'XX', 'Bandit',
-    'Fear', 'Light', 'Glow', 'Tread', 'Deep', 'Deeper', 'Deepest',
-    'Mine', 'Your', 'Worst', 'Enemy', 'Hostile', 'Force', 'Video',
-    'Game', 'Donkey', 'Mule', 'Colt', 'Cult', 'Cultist', 'Magnum',
-    'Gun', 'Assault', 'Recon', 'Trap', 'Trapper', 'Redeem', 'Code',
-    'Script', 'Writer', 'Near', 'Close', 'Open', 'Cube', 'Circle',
-    'Geo', 'Genome', 'Germ', 'Spaz', 'Shot', 'Echo', 'Beta', 'Alpha',
-    'Gamma', 'Omega', 'Seal', 'Squid', 'Money', 'Cash', 'Lord', 'King',
-    'Duke', 'Rest', 'Fire', 'Flame', 'Morrow', 'Break', 'Breaker', 'Numb',
-    'Ice', 'Cold', 'Rotten', 'Sick', 'Sickly', 'Janitor', 'Camel', 'Rooster',
-    'Sand', 'Desert', 'Dessert', 'Hurdle', 'Racer', 'Eraser', 'Erase', 'Big',
-    'Small', 'Short', 'Tall', 'Sith', 'Bounty', 'Hunter', 'Cracked', 'Broken',
-    'Sad', 'Happy', 'Joy', 'Joyful', 'Crimson', 'Destiny', 'Deceit', 'Lies',
-    'Lie', 'Honest', 'Destined', 'Bloxxer', 'Hawk', 'Eagle', 'Hawker', 'Walker',
-    'Zombie', 'Sarge', 'Capt', 'Captain', 'Punch', 'One', 'Two', 'Uno', 'Slice',
-    'Slash', 'Melt', 'Melted', 'Melting', 'Fell', 'Wolf', 'Hound',
-    'Legacy', 'Sharp', 'Dead', 'Mew', 'Chuckle', 'Bubba', 'Bubble', 'Sandwich', 'Smasher', 'Extreme', 'Multi', 'Universe', 'Ultimate', 'Death', 'Ready', 'Monkey', 'Elevator', 'Wrench', 'Grease', 'Head', 'Theme', 'Grand', 'Cool', 'Kid', 'Boy', 'Girl', 'Vortex', 'Paradox'
+    'Quantum', 'Neon', 'Cryptic', 'Blaze', 'Frostbite', 'Nebula', 'Shadow', 'Viper',
+    'Eclipse', 'Starlight', 'Zenith', 'Inferno', 'Apex', 'Specter', 'Phantom', 'Venom',
+    'Nova', 'Blitz', 'Tempest', 'Cyclone', 'Omega', 'Echo', 'Vortex', 'Mirage', 'Rogue',
+    'Pulse', 'Ember', 'Catalyst', 'Horizon', 'Vertex', 'Galactic', 'Void', 'Cobra',
+    'Chrome', 'Nitro', 'Titan', 'Spectral', 'Falcon', 'Phoenix', 'Cyborg', 'Element',
+    'Volt', 'Reaper', 'Fury', 'Arcane', 'Sonic', 'Savage', 'Drift', 'Strike', 'Ravage',
+    'Glitch', 'Matrix', 'Riot', 'Myst', 'Aurora', 'Revenant', 'Spectra', 'Cipher',
+    'Zero', 'Echo', 'Zen', 'Atom', 'Crimson', 'Draco', 'Pixel', 'Maverick', 'Surge',
+    'Nemesis', 'Glacier', 'Scorch', 'Shifter', 'Blizzard', 'Pulsar', 'Ion', 'Meteor',
+    'Phaser', 'Turbo', 'Bullet', 'Chimera', 'Shadowfax', 'Renegade', 'Tremor', 'Stealth',
+    'Tempest', 'Warden', 'Ghost', 'Prophet', 'Shroud', 'Cyber', 'Strider', 'Blitzkrieg',
+    'Orion', 'Hyperion', 'Havoc', 'Shockwave', 'Nocturne', 'Echo', 'Radiance', 'Thunder',
+    'Helix', 'Dusk', 'Titanium', 'Ironclad', 'Gale', 'Morpheus', 'Axion', 'Astral',
+    'Havoc', 'Blazer', 'Omen', 'Voidwalker', 'Spectre', 'Pulsefire', 'Singularity',
+    'Hunter', 'Riptide', 'Nebulus', 'Warhawk', 'Fate', 'Zenith', 'Icarus', 'Nightmare',
+    'Vendetta', 'Monolith', 'Oblivion', 'Kronos', 'Tempus', 'Cipher', 'Nyx', 'Thorne',
+    'Skylark', 'Vindicator', 'Exodus', 'Dragoon', 'Sentinel', 'Radium', 'Eon', 'Onyx',
+    'Cipher', 'Excalibur', 'Silver', 'Majestic', 'Quantum', 'Mach', 'Orbit', 'Thunderbolt',
+    'Roguewave', 'Galactus', 'Crusader', 'Jaguar', 'Vanguard', 'Oracle', 'Mercenary', 'Eclipse'
 ];
 export default async function() {
     const randomUsername = Math.random().toString(36).substr(2, 8);
